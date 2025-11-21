@@ -1,0 +1,1282 @@
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"main_dop.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/main_dop.c"
+  20              		.section	.text.main,"ax",%progbits
+  21              		.align	1
+  22              		.global	main
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	main:
+  28              	.LFB0:
+   1:Core/Src/main_dop.c **** #include <stdint.h> 
+   2:Core/Src/main_dop.c **** #include <stdbool.h>
+   3:Core/Src/main_dop.c **** #include <init.h>
+   4:Core/Src/main_dop.c **** #include <init_dop.h> 
+   5:Core/Src/main_dop.c **** // 1 секунда = 1 000 000 счётчика (примерно)
+   6:Core/Src/main_dop.c **** 
+   7:Core/Src/main_dop.c **** /* 
+   8:Core/Src/main_dop.c **** порты группы B - для выхода на внешние светодиоды
+   9:Core/Src/main_dop.c ****     B6  - красный светодиод
+  10:Core/Src/main_dop.c ****     B7  - жёлтый светодиод
+  11:Core/Src/main_dop.c ****     B8  - зелёный светодиод
+  12:Core/Src/main_dop.c ****     B9  - голубой RGB светодиод
+  13:Core/Src/main_dop.c ****     B10 - зелёный RGB светодиод
+  14:Core/Src/main_dop.c ****     B12 - красный RGB светодиод
+  15:Core/Src/main_dop.c **** порты группы С - для работы с кнопка 
+  16:Core/Src/main_dop.c ****     С0 - кнопка включение светодиодов 
+  17:Core/Src/main_dop.c ****     С1 - кнопка выключение светодиодов 
+  18:Core/Src/main_dop.c ****     С2 - кнопка смены частоты 
+  19:Core/Src/main_dop.c ****     С3 - кнопка выбора настраиваемого светодиода (нажати
+  20:Core/Src/main_dop.c **** */
+  21:Core/Src/main_dop.c **** 
+  22:Core/Src/main_dop.c **** // Объявления переменны
+  23:Core/Src/main_dop.c **** 
+  24:Core/Src/main_dop.c **** // флаги срабатывания "таймеров"
+  25:Core/Src/main_dop.c **** bool flag_1 = false;
+  26:Core/Src/main_dop.c **** bool flag_2 = false;
+  27:Core/Src/main_dop.c **** 
+  28:Core/Src/main_dop.c **** // счётчики "таймеров"
+  29:Core/Src/main_dop.c **** uint32_t count_1 = 0;
+  30:Core/Src/main_dop.c **** uint32_t count_2 = 0;
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 2
+
+
+  31:Core/Src/main_dop.c **** 
+  32:Core/Src/main_dop.c **** // флаги сохранения состояния нажатия кнопок
+  33:Core/Src/main_dop.c **** // функция антидребезга и различия нажатия и отпуская �
+  34:Core/Src/main_dop.c **** uint8_t butt_0_state = 1;
+  35:Core/Src/main_dop.c **** uint8_t butt_1_state = 1; 
+  36:Core/Src/main_dop.c **** uint8_t butt_2_state = 1; 
+  37:Core/Src/main_dop.c **** uint8_t butt_3_state = 1;
+  38:Core/Src/main_dop.c **** 
+  39:Core/Src/main_dop.c **** // Переменные шага включеня/выключения
+  40:Core/Src/main_dop.c **** uint8_t step_min = 1;
+  41:Core/Src/main_dop.c **** uint8_t step_max = 6;
+  42:Core/Src/main_dop.c **** uint8_t step = 1;
+  43:Core/Src/main_dop.c **** 
+  44:Core/Src/main_dop.c **** uint8_t  cursor = 0;    // "курсор" для настройки частоты моргания
+  45:Core/Src/main_dop.c **** uint32_t butt_3_count;  // счётчик долгого нажатия кнопки 
+  46:Core/Src/main_dop.c **** uint32_t butt_3_long_push = 500000; // значение долгого нажатия кнопки
+  47:Core/Src/main_dop.c **** 
+  48:Core/Src/main_dop.c **** 
+  49:Core/Src/main_dop.c **** int8_t cur_led = -1;                        // переменная отслеживания вкл
+  50:Core/Src/main_dop.c ****                                             // начинаем отсчёт от -1 для тог�
+  51:Core/Src/main_dop.c **** uint8_t led[6] = {6, 7, 8, 9, 10, 12};      // массив портов светодиодов
+  52:Core/Src/main_dop.c **** bool led_state[6] = {false, false, false, 
+  53:Core/Src/main_dop.c ****                     false, false, false};   // массив состояний (вкл/выкл)
+  54:Core/Src/main_dop.c **** uint8_t led_blink[6] = {0, 0, 0, 0, 0, 0};  // массив состояний (скорость м
+  55:Core/Src/main_dop.c ****                                             // 0 - постоянное включение
+  56:Core/Src/main_dop.c ****                                             // 1 - моргание с частотой 0,5 Гц
+  57:Core/Src/main_dop.c ****                                             // 2 - моргание с частотой 0,25 Гц
+  58:Core/Src/main_dop.c **** 
+  59:Core/Src/main_dop.c **** // переменные для отслеживания состояний светодиодов �
+  60:Core/Src/main_dop.c **** bool led_0_state = false, led_1_state = false, led_2_state = false, 
+  61:Core/Src/main_dop.c ****     led_3_state = false, led_4_state = false, led_5_state = false;
+  62:Core/Src/main_dop.c **** 
+  63:Core/Src/main_dop.c **** uint8_t led_0_blink = 0,  led_1_blink = 0, led_2_blink = 0,
+  64:Core/Src/main_dop.c ****         led_3_blink = 0,  led_4_blink = 0, led_5_blink = 0;
+  65:Core/Src/main_dop.c **** 
+  66:Core/Src/main_dop.c **** int main(void){
+  29              		.loc 1 66 15 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 16
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38 0002 84B0     		sub	sp, sp, #16
+  39              	.LCFI1:
+  40              		.cfi_def_cfa_offset 24
+  67:Core/Src/main_dop.c **** 
+  68:Core/Src/main_dop.c ****     GPIO_init_dop();    //инициализация пинов
+  41              		.loc 1 68 5 view .LVU1
+  42 0004 FFF7FEFF 		bl	GPIO_init_dop
+  43              	.LVL0:
+  44 0008 68E1     		b	.L35
+  45              	.L42:
+  69:Core/Src/main_dop.c **** 
+  70:Core/Src/main_dop.c ****     while (1){
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 3
+
+
+  71:Core/Src/main_dop.c ****         // счётчики для реализации "таймера"
+  72:Core/Src/main_dop.c ****         count_1 ++;
+  73:Core/Src/main_dop.c ****         count_2 ++;
+  74:Core/Src/main_dop.c **** 
+  75:Core/Src/main_dop.c ****         // обрабока кнопки 0 (включение светодиодов)
+  76:Core/Src/main_dop.c ****         if ((READ_GPIOC(0) != butt_0_state) & (butt_0_state == 0) ) 
+  77:Core/Src/main_dop.c ****         {   
+  78:Core/Src/main_dop.c ****             DELAY_LOOP(25000);
+  46              		.loc 1 78 13 view .LVU2
+  47              	.LBB2:
+  48              		.loc 1 78 13 view .LVU3
+  49 000a 0023     		movs	r3, #0
+  50 000c 0093     		str	r3, [sp]
+  51 000e 02E0     		b	.L3
+  52              	.L4:
+  53              		.loc 1 78 13 discriminator 3 view .LVU4
+  54 0010 009B     		ldr	r3, [sp]
+  55 0012 0133     		adds	r3, r3, #1
+  56 0014 0093     		str	r3, [sp]
+  57              	.L3:
+  58              		.loc 1 78 13 discriminator 1 view .LVU5
+  59 0016 009A     		ldr	r2, [sp]
+  60 0018 46F2A713 		movw	r3, #24999
+  61 001c 9A42     		cmp	r2, r3
+  62 001e F7D9     		bls	.L4
+  63              	.LBE2:
+  79:Core/Src/main_dop.c ****             if ((READ_GPIOC(0) != butt_0_state) & (butt_0_state == 0)) 
+  64              		.loc 1 79 13 view .LVU6
+  65              		.loc 1 79 18 is_stmt 0 view .LVU7
+  66 0020 8D4B     		ldr	r3, .L46
+  67 0022 D3F81038 		ldr	r3, [r3, #2064]
+  68 0026 03F00103 		and	r3, r3, #1
+  69              		.loc 1 79 49 view .LVU8
+  70 002a 9C45     		cmp	ip, r3
+  71 002c 0CBF     		ite	eq
+  72 002e 0024     		moveq	r4, #0
+  73 0030 04F00104 		andne	r4, r4, #1
+  74              		.loc 1 79 16 view .LVU9
+  75 0034 002C     		cmp	r4, #0
+  76 0036 00F06C81 		beq	.L2
+  77              	.LBB3:
+  80:Core/Src/main_dop.c ****             {
+  81:Core/Src/main_dop.c ****                 // переводим курсов и включаем соответсвующий
+  82:Core/Src/main_dop.c ****                 for (uint8_t i_0 = 0; i_0 < step; i_0++)
+  78              		.loc 1 82 30 view .LVU10
+  79 003a 0022     		movs	r2, #0
+  80 003c 09E0     		b	.L5
+  81              	.LVL1:
+  82              	.L6:
+  83:Core/Src/main_dop.c ****                 {
+  84:Core/Src/main_dop.c ****                     cur_led += 1;
+  85:Core/Src/main_dop.c ****                     //защита  от обращения в несущетсвующим эле�
+  86:Core/Src/main_dop.c ****                     if (cur_led > 5) {cur_led = 5;}    
+  87:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+  83              		.loc 1 87 21 is_stmt 1 view .LVU11
+  84              		.loc 1 87 30 is_stmt 0 view .LVU12
+  85 003e 874B     		ldr	r3, .L46+4
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 4
+
+
+  86 0040 93F90030 		ldrsb	r3, [r3]
+  87              		.loc 1 87 40 view .LVU13
+  88 0044 864C     		ldr	r4, .L46+8
+  89 0046 4FF0010C 		mov	ip, #1
+  90 004a 04F803C0 		strb	ip, [r4, r3]
+  82:Core/Src/main_dop.c ****                 {
+  91              		.loc 1 82 54 is_stmt 1 discriminator 2 view .LVU14
+  92 004e 6244     		add	r2, r2, ip
+  93              	.LVL2:
+  82:Core/Src/main_dop.c ****                 {
+  94              		.loc 1 82 54 is_stmt 0 discriminator 2 view .LVU15
+  95 0050 D2B2     		uxtb	r2, r2
+  96              	.LVL3:
+  97              	.L5:
+  82:Core/Src/main_dop.c ****                 {
+  98              		.loc 1 82 43 is_stmt 1 discriminator 1 view .LVU16
+  99 0052 844B     		ldr	r3, .L46+12
+ 100 0054 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 101 0056 9342     		cmp	r3, r2
+ 102 0058 40F25B81 		bls	.L2
+  84:Core/Src/main_dop.c ****                     //защита  от обращения в несущетсвующим эле�
+ 103              		.loc 1 84 21 view .LVU17
+  84:Core/Src/main_dop.c ****                     //защита  от обращения в несущетсвующим эле�
+ 104              		.loc 1 84 29 is_stmt 0 view .LVU18
+ 105 005c 7F4C     		ldr	r4, .L46+4
+ 106 005e 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 107 0060 0133     		adds	r3, r3, #1
+ 108 0062 5BB2     		sxtb	r3, r3
+ 109 0064 2370     		strb	r3, [r4]
+  86:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+ 110              		.loc 1 86 21 is_stmt 1 view .LVU19
+  86:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+ 111              		.loc 1 86 24 is_stmt 0 view .LVU20
+ 112 0066 052B     		cmp	r3, #5
+ 113 0068 E9DD     		ble	.L6
+  86:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+ 114              		.loc 1 86 39 is_stmt 1 discriminator 1 view .LVU21
+  86:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+ 115              		.loc 1 86 47 is_stmt 0 discriminator 1 view .LVU22
+ 116 006a 2346     		mov	r3, r4
+ 117 006c 0524     		movs	r4, #5
+ 118 006e 1C70     		strb	r4, [r3]
+ 119 0070 E5E7     		b	.L6
+ 120              	.LVL4:
+ 121              	.L43:
+  86:Core/Src/main_dop.c ****                     led_state[cur_led] = true;  
+ 122              		.loc 1 86 47 discriminator 1 view .LVU23
+ 123              	.LBE3:
+  88:Core/Src/main_dop.c ****                 }     
+  89:Core/Src/main_dop.c ****             } 
+  90:Core/Src/main_dop.c ****         }
+  91:Core/Src/main_dop.c ****         // // обрабока кнопки 1 (выключение светодиодов)
+  92:Core/Src/main_dop.c ****         if ((READ_GPIOC(1) != butt_1_state) & (butt_1_state == 0) ) 
+  93:Core/Src/main_dop.c ****         {   
+  94:Core/Src/main_dop.c ****             DELAY_LOOP(25000);
+ 124              		.loc 1 94 13 is_stmt 1 view .LVU24
+ 125              	.LBB4:
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 5
+
+
+ 126              		.loc 1 94 13 view .LVU25
+ 127 0072 0023     		movs	r3, #0
+ 128 0074 0193     		str	r3, [sp, #4]
+ 129 0076 02E0     		b	.L9
+ 130              	.L10:
+ 131              		.loc 1 94 13 discriminator 3 view .LVU26
+ 132 0078 019B     		ldr	r3, [sp, #4]
+ 133 007a 0133     		adds	r3, r3, #1
+ 134 007c 0193     		str	r3, [sp, #4]
+ 135              	.L9:
+ 136              		.loc 1 94 13 discriminator 1 view .LVU27
+ 137 007e 019A     		ldr	r2, [sp, #4]
+ 138 0080 46F2A713 		movw	r3, #24999
+ 139 0084 9A42     		cmp	r2, r3
+ 140 0086 F7D9     		bls	.L10
+ 141              	.LBE4:
+  95:Core/Src/main_dop.c ****             if ((READ_GPIOC(1) != butt_1_state) & (butt_1_state == 0)) 
+ 142              		.loc 1 95 13 view .LVU28
+ 143              		.loc 1 95 18 is_stmt 0 view .LVU29
+ 144 0088 734B     		ldr	r3, .L46
+ 145 008a D3F81038 		ldr	r3, [r3, #2064]
+ 146 008e 03F00203 		and	r3, r3, #2
+ 147              		.loc 1 95 49 view .LVU30
+ 148 0092 9C45     		cmp	ip, r3
+ 149 0094 0CBF     		ite	eq
+ 150 0096 0024     		moveq	r4, #0
+ 151 0098 04F00104 		andne	r4, r4, #1
+ 152              		.loc 1 95 16 view .LVU31
+ 153 009c 002C     		cmp	r4, #0
+ 154 009e 00F04B81 		beq	.L8
+ 155              	.LBB5:
+  96:Core/Src/main_dop.c ****             {
+  97:Core/Src/main_dop.c ****                 // выключаем светодиод и меняем курсор
+  98:Core/Src/main_dop.c ****                 for (uint8_t i_1 = 0; i_1 < step; i_1++)
+ 156              		.loc 1 98 30 view .LVU32
+ 157 00a2 0022     		movs	r2, #0
+ 158              	.L11:
+ 159              	.LVL5:
+ 160              		.loc 1 98 43 is_stmt 1 discriminator 1 view .LVU33
+ 161 00a4 6F4B     		ldr	r3, .L46+12
+ 162 00a6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 163 00a8 9342     		cmp	r3, r2
+ 164 00aa 40F24581 		bls	.L8
+  99:Core/Src/main_dop.c ****                 {
+ 100:Core/Src/main_dop.c ****                     //защита  от обращения в несущетсвующим эле�
+ 101:Core/Src/main_dop.c ****                     if (cur_led < -1) {cur_led = -1; break;} 
+ 165              		.loc 1 101 21 view .LVU34
+ 166              		.loc 1 101 33 is_stmt 0 view .LVU35
+ 167 00ae 6B4B     		ldr	r3, .L46+4
+ 168 00b0 93F90030 		ldrsb	r3, [r3]
+ 169              		.loc 1 101 24 view .LVU36
+ 170 00b4 B3F1FF3F 		cmp	r3, #-1
+ 171 00b8 0ADB     		blt	.L39
+ 102:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 172              		.loc 1 102 21 is_stmt 1 view .LVU37
+ 173              		.loc 1 102 40 is_stmt 0 view .LVU38
+ 174 00ba 694C     		ldr	r4, .L46+8
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 6
+
+
+ 175 00bc 4FF0000C 		mov	ip, #0
+ 176 00c0 04F803C0 		strb	ip, [r4, r3]
+ 103:Core/Src/main_dop.c ****                     cur_led -= 1;
+ 177              		.loc 1 103 21 is_stmt 1 view .LVU39
+ 178              		.loc 1 103 29 is_stmt 0 view .LVU40
+ 179 00c4 013B     		subs	r3, r3, #1
+ 180 00c6 654C     		ldr	r4, .L46+4
+ 181 00c8 2370     		strb	r3, [r4]
+  98:Core/Src/main_dop.c ****                 {
+ 182              		.loc 1 98 54 is_stmt 1 discriminator 2 view .LVU41
+ 183 00ca 0132     		adds	r2, r2, #1
+ 184              	.LVL6:
+  98:Core/Src/main_dop.c ****                 {
+ 185              		.loc 1 98 54 is_stmt 0 discriminator 2 view .LVU42
+ 186 00cc D2B2     		uxtb	r2, r2
+ 187              	.LVL7:
+  98:Core/Src/main_dop.c ****                 {
+ 188              		.loc 1 98 54 discriminator 2 view .LVU43
+ 189 00ce E9E7     		b	.L11
+ 190              	.L39:
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 191              		.loc 1 101 40 is_stmt 1 discriminator 1 view .LVU44
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 192              		.loc 1 101 48 is_stmt 0 discriminator 1 view .LVU45
+ 193 00d0 624B     		ldr	r3, .L46+4
+ 194 00d2 FF22     		movs	r2, #255
+ 195              	.LVL8:
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 196              		.loc 1 101 48 discriminator 1 view .LVU46
+ 197 00d4 1A70     		strb	r2, [r3]
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 198              		.loc 1 101 54 is_stmt 1 discriminator 1 view .LVU47
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 199              		.loc 1 101 54 is_stmt 0 view .LVU48
+ 200 00d6 2FE1     		b	.L8
+ 201              	.LVL9:
+ 202              	.L44:
+ 101:Core/Src/main_dop.c ****                     led_state[cur_led] = false;
+ 203              		.loc 1 101 54 view .LVU49
+ 204              	.LBE5:
+ 104:Core/Src/main_dop.c ****                 }                 
+ 105:Core/Src/main_dop.c ****             }
+ 106:Core/Src/main_dop.c ****         }
+ 107:Core/Src/main_dop.c ****         
+ 108:Core/Src/main_dop.c ****         // Обработка нажатия кнопки 3 (изменения частоты мо
+ 109:Core/Src/main_dop.c ****          if ((READ_GPIOC(2) != butt_2_state) & (butt_2_state == 0) ) 
+ 110:Core/Src/main_dop.c ****         {   
+ 111:Core/Src/main_dop.c ****             DELAY_LOOP(25000);
+ 205              		.loc 1 111 13 is_stmt 1 view .LVU50
+ 206              	.LBB6:
+ 207              		.loc 1 111 13 view .LVU51
+ 208 00d8 0023     		movs	r3, #0
+ 209 00da 0293     		str	r3, [sp, #8]
+ 210 00dc 02E0     		b	.L15
+ 211              	.L16:
+ 212              		.loc 1 111 13 discriminator 3 view .LVU52
+ 213 00de 029B     		ldr	r3, [sp, #8]
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 7
+
+
+ 214 00e0 0133     		adds	r3, r3, #1
+ 215 00e2 0293     		str	r3, [sp, #8]
+ 216              	.L15:
+ 217              		.loc 1 111 13 discriminator 1 view .LVU53
+ 218 00e4 029A     		ldr	r2, [sp, #8]
+ 219 00e6 46F2A713 		movw	r3, #24999
+ 220 00ea 9A42     		cmp	r2, r3
+ 221 00ec F7D9     		bls	.L16
+ 222              	.LBE6:
+ 112:Core/Src/main_dop.c ****             if ((READ_GPIOC(2) != butt_2_state) & (butt_2_state == 0)) 
+ 223              		.loc 1 112 13 view .LVU54
+ 224              		.loc 1 112 18 is_stmt 0 view .LVU55
+ 225 00ee 5A4B     		ldr	r3, .L46
+ 226 00f0 D3F81038 		ldr	r3, [r3, #2064]
+ 227 00f4 03F00403 		and	r3, r3, #4
+ 228              		.loc 1 112 49 view .LVU56
+ 229 00f8 9C45     		cmp	ip, r3
+ 230 00fa 0CBF     		ite	eq
+ 231 00fc 0024     		moveq	r4, #0
+ 232 00fe 04F00104 		andne	r4, r4, #1
+ 233              		.loc 1 112 16 view .LVU57
+ 234 0102 002C     		cmp	r4, #0
+ 235 0104 00F02B81 		beq	.L14
+ 113:Core/Src/main_dop.c ****                 {
+ 114:Core/Src/main_dop.c ****                     led_blink[cursor] += 1;
+ 236              		.loc 1 114 21 is_stmt 1 view .LVU58
+ 237              		.loc 1 114 30 is_stmt 0 view .LVU59
+ 238 0108 574B     		ldr	r3, .L46+16
+ 239 010a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 240 010c 574C     		ldr	r4, .L46+20
+ 241 010e A35C     		ldrb	r3, [r4, r2]	@ zero_extendqisi2
+ 242              		.loc 1 114 39 view .LVU60
+ 243 0110 0133     		adds	r3, r3, #1
+ 244 0112 DBB2     		uxtb	r3, r3
+ 245 0114 A354     		strb	r3, [r4, r2]
+ 115:Core/Src/main_dop.c ****                     if (led_blink[cursor] > 2) {led_blink[cursor] = 0;}
+ 246              		.loc 1 115 21 is_stmt 1 view .LVU61
+ 247              		.loc 1 115 24 is_stmt 0 view .LVU62
+ 248 0116 022B     		cmp	r3, #2
+ 249 0118 40F22181 		bls	.L14
+ 250              		.loc 1 115 49 is_stmt 1 discriminator 1 view .LVU63
+ 251              		.loc 1 115 67 is_stmt 0 discriminator 1 view .LVU64
+ 252 011c 2346     		mov	r3, r4
+ 253 011e 0024     		movs	r4, #0
+ 254 0120 9C54     		strb	r4, [r3, r2]
+ 255 0122 1CE1     		b	.L14
+ 256              	.L45:
+ 116:Core/Src/main_dop.c ****                 }
+ 117:Core/Src/main_dop.c ****  
+ 118:Core/Src/main_dop.c ****         } 
+ 119:Core/Src/main_dop.c ****         
+ 120:Core/Src/main_dop.c ****         if ((READ_GPIOC(3) != butt_3_state) & (butt_3_state == 0) ) 
+ 121:Core/Src/main_dop.c ****         {   
+ 122:Core/Src/main_dop.c ****             butt_3_state = READ_GPIOC(3);
+ 257              		.loc 1 122 13 is_stmt 1 view .LVU65
+ 258              		.loc 1 122 28 is_stmt 0 view .LVU66
+ 259 0124 04F00804 		and	r4, r4, #8
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 8
+
+
+ 260              		.loc 1 122 26 view .LVU67
+ 261 0128 514B     		ldr	r3, .L46+24
+ 262 012a 1C70     		strb	r4, [r3]
+ 123:Core/Src/main_dop.c **** 
+ 124:Core/Src/main_dop.c ****             for(volatile int i=0; i<25000; i++) // задержка от дребезга
+ 263              		.loc 1 124 13 is_stmt 1 view .LVU68
+ 264              	.LBB7:
+ 265              		.loc 1 124 17 view .LVU69
+ 266              		.loc 1 124 30 is_stmt 0 view .LVU70
+ 267 012c 0023     		movs	r3, #0
+ 268 012e 0393     		str	r3, [sp, #12]
+ 269              		.loc 1 124 13 view .LVU71
+ 270 0130 0CE0     		b	.L18
+ 271              	.L19:
+ 125:Core/Src/main_dop.c ****             
+ 126:Core/Src/main_dop.c ****             // пока кнопка зажата - работает счётчик
+ 127:Core/Src/main_dop.c ****             while ((READ_GPIOC(3) != 0)) 
+ 128:Core/Src/main_dop.c ****             {butt_3_count += 1;}
+ 272              		.loc 1 128 14 is_stmt 1 view .LVU72
+ 273              		.loc 1 128 27 is_stmt 0 view .LVU73
+ 274 0132 504A     		ldr	r2, .L46+28
+ 275 0134 1368     		ldr	r3, [r2]
+ 276 0136 0133     		adds	r3, r3, #1
+ 277 0138 1360     		str	r3, [r2]
+ 278              	.L20:
+ 127:Core/Src/main_dop.c ****             {butt_3_count += 1;}
+ 279              		.loc 1 127 35 is_stmt 1 view .LVU74
+ 127:Core/Src/main_dop.c ****             {butt_3_count += 1;}
+ 280              		.loc 1 127 21 is_stmt 0 view .LVU75
+ 281 013a 474B     		ldr	r3, .L46
+ 282 013c D3F81038 		ldr	r3, [r3, #2064]
+ 127:Core/Src/main_dop.c ****             {butt_3_count += 1;}
+ 283              		.loc 1 127 35 view .LVU76
+ 284 0140 13F0080F 		tst	r3, #8
+ 285 0144 F5D1     		bne	.L19
+ 124:Core/Src/main_dop.c ****             
+ 286              		.loc 1 124 45 is_stmt 1 discriminator 2 view .LVU77
+ 287 0146 039B     		ldr	r3, [sp, #12]
+ 288 0148 0133     		adds	r3, r3, #1
+ 289 014a 0393     		str	r3, [sp, #12]
+ 290              	.L18:
+ 124:Core/Src/main_dop.c ****             
+ 291              		.loc 1 124 36 discriminator 1 view .LVU78
+ 292 014c 039A     		ldr	r2, [sp, #12]
+ 293 014e 46F2A713 		movw	r3, #24999
+ 294 0152 9A42     		cmp	r2, r3
+ 295 0154 F1DD     		ble	.L20
+ 296              	.LBE7:
+ 129:Core/Src/main_dop.c **** 
+ 130:Core/Src/main_dop.c ****             // если счётчик соответсвует долгому - нажатию м�
+ 131:Core/Src/main_dop.c ****             if (butt_3_count >= butt_3_long_push)   {step += 1;}
+ 297              		.loc 1 131 13 view .LVU79
+ 298              		.loc 1 131 30 is_stmt 0 view .LVU80
+ 299 0156 474B     		ldr	r3, .L46+28
+ 300 0158 1B68     		ldr	r3, [r3]
+ 301 015a 474A     		ldr	r2, .L46+32
+ 302 015c 1268     		ldr	r2, [r2]
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 9
+
+
+ 303              		.loc 1 131 16 view .LVU81
+ 304 015e 9342     		cmp	r3, r2
+ 305 0160 18D3     		bcc	.L21
+ 306              		.loc 1 131 54 is_stmt 1 discriminator 1 view .LVU82
+ 307              		.loc 1 131 59 is_stmt 0 discriminator 1 view .LVU83
+ 308 0162 404A     		ldr	r2, .L46+12
+ 309 0164 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 310 0166 0133     		adds	r3, r3, #1
+ 311 0168 1370     		strb	r3, [r2]
+ 312              	.L22:
+ 132:Core/Src/main_dop.c ****             // в если счётчик не дошёл дл=о порога и не равен �
+ 133:Core/Src/main_dop.c ****             else if (butt_3_count !=0)              {cursor += 1;}
+ 134:Core/Src/main_dop.c ****             // цикличное изменение шага и курсора
+ 135:Core/Src/main_dop.c ****             if (step > step_max) {step = step_min;} 
+ 313              		.loc 1 135 13 is_stmt 1 view .LVU84
+ 314              		.loc 1 135 22 is_stmt 0 view .LVU85
+ 315 016a 3E4B     		ldr	r3, .L46+12
+ 316 016c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 317 016e 434B     		ldr	r3, .L46+36
+ 318 0170 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 319              		.loc 1 135 16 view .LVU86
+ 320 0172 9A42     		cmp	r2, r3
+ 321 0174 03D9     		bls	.L23
+ 322              		.loc 1 135 35 is_stmt 1 discriminator 1 view .LVU87
+ 323              		.loc 1 135 40 is_stmt 0 discriminator 1 view .LVU88
+ 324 0176 424B     		ldr	r3, .L46+40
+ 325 0178 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 326 017a 3A4B     		ldr	r3, .L46+12
+ 327 017c 1A70     		strb	r2, [r3]
+ 328              	.L23:
+ 136:Core/Src/main_dop.c ****             if (cursor > 5) {cursor = 0;}
+ 329              		.loc 1 136 13 is_stmt 1 view .LVU89
+ 330              		.loc 1 136 24 is_stmt 0 view .LVU90
+ 331 017e 3A4B     		ldr	r3, .L46+16
+ 332 0180 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 333              		.loc 1 136 16 view .LVU91
+ 334 0182 052B     		cmp	r3, #5
+ 335 0184 02D9     		bls	.L24
+ 336              		.loc 1 136 30 is_stmt 1 discriminator 1 view .LVU92
+ 337              		.loc 1 136 37 is_stmt 0 discriminator 1 view .LVU93
+ 338 0186 384B     		ldr	r3, .L46+16
+ 339 0188 0022     		movs	r2, #0
+ 340 018a 1A70     		strb	r2, [r3]
+ 341              	.L24:
+ 137:Core/Src/main_dop.c ****             butt_3_count = 0;
+ 342              		.loc 1 137 13 is_stmt 1 view .LVU94
+ 343              		.loc 1 137 26 is_stmt 0 view .LVU95
+ 344 018c 394B     		ldr	r3, .L46+28
+ 345 018e 0022     		movs	r2, #0
+ 346 0190 1A60     		str	r2, [r3]
+ 347 0192 F4E0     		b	.L17
+ 348              	.L21:
+ 133:Core/Src/main_dop.c ****             // цикличное изменение шага и курсора
+ 349              		.loc 1 133 18 is_stmt 1 view .LVU96
+ 133:Core/Src/main_dop.c ****             // цикличное изменение шага и курсора
+ 350              		.loc 1 133 21 is_stmt 0 view .LVU97
+ 351 0194 002B     		cmp	r3, #0
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 10
+
+
+ 352 0196 E8D0     		beq	.L22
+ 133:Core/Src/main_dop.c ****             // цикличное изменение шага и курсора
+ 353              		.loc 1 133 54 is_stmt 1 discriminator 1 view .LVU98
+ 133:Core/Src/main_dop.c ****             // цикличное изменение шага и курсора
+ 354              		.loc 1 133 61 is_stmt 0 discriminator 1 view .LVU99
+ 355 0198 334A     		ldr	r2, .L46+16
+ 356 019a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 357 019c 0133     		adds	r3, r3, #1
+ 358 019e 1370     		strb	r3, [r2]
+ 359 01a0 E3E7     		b	.L22
+ 360              	.LVL10:
+ 361              	.L28:
+ 362              	.LBB8:
+ 138:Core/Src/main_dop.c ****         } 
+ 139:Core/Src/main_dop.c ****         
+ 140:Core/Src/main_dop.c ****         // обновление состояния кнопки
+ 141:Core/Src/main_dop.c ****         butt_0_state = READ_GPIOC(0);
+ 142:Core/Src/main_dop.c ****         butt_1_state = READ_GPIOC(1);
+ 143:Core/Src/main_dop.c ****         butt_2_state = READ_GPIOC(2);
+ 144:Core/Src/main_dop.c ****         butt_3_state = READ_GPIOC(3);
+ 145:Core/Src/main_dop.c **** 
+ 146:Core/Src/main_dop.c ****         // обработчик "таймера"
+ 147:Core/Src/main_dop.c ****         // желаймая частота стабатывания делится на 2, т.к. �
+ 148:Core/Src/main_dop.c ****         if (count_1 >= base_frequency / T_1 * 0.5) {count_1 = 0; flag_1 ^= 1;}
+ 149:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 150:Core/Src/main_dop.c **** 
+ 151:Core/Src/main_dop.c ****         // цикл обработки состояний светдодиодов
+ 152:Core/Src/main_dop.c ****         for (uint8_t i = 0; i < 6; i++)
+ 153:Core/Src/main_dop.c ****         {
+ 154:Core/Src/main_dop.c ****             if(led_state[i])    //проверка состояния включения свето
+ 155:Core/Src/main_dop.c ****             {
+ 156:Core/Src/main_dop.c ****                 if (led_blink[i] == 0)
+ 157:Core/Src/main_dop.c ****                 {
+ 158:Core/Src/main_dop.c ****                     WRITE_BIT(GPIOB_BSRR, led[i]);
+ 159:Core/Src/main_dop.c ****                 }
+ 160:Core/Src/main_dop.c ****                 else if (led_blink[i] == 1)
+ 363              		.loc 1 160 22 is_stmt 1 view .LVU100
+ 364              		.loc 1 160 25 is_stmt 0 view .LVU101
+ 365 01a2 012A     		cmp	r2, #1
+ 366 01a4 0FD0     		beq	.L40
+ 161:Core/Src/main_dop.c ****                 {
+ 162:Core/Src/main_dop.c ****                     if (flag_1) {WRITE_BIT(GPIOB_BSRR, led[i]);}
+ 163:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 164:Core/Src/main_dop.c ****                 }
+ 165:Core/Src/main_dop.c ****                 else if (led_blink[i] == 2)
+ 367              		.loc 1 165 22 is_stmt 1 view .LVU102
+ 368              		.loc 1 165 25 is_stmt 0 view .LVU103
+ 369 01a6 022A     		cmp	r2, #2
+ 370 01a8 3ED1     		bne	.L29
+ 166:Core/Src/main_dop.c ****                 {
+ 167:Core/Src/main_dop.c ****                     if (flag_2) {WRITE_BIT(GPIOB_BSRR, led[i]);}
+ 371              		.loc 1 167 21 is_stmt 1 view .LVU104
+ 372              		.loc 1 167 25 is_stmt 0 view .LVU105
+ 373 01aa 364A     		ldr	r2, .L46+44
+ 374 01ac 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 375              		.loc 1 167 24 view .LVU106
+ 376 01ae 22B3     		cbz	r2, .L32
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 11
+
+
+ 377              		.loc 1 167 34 is_stmt 1 discriminator 1 view .LVU107
+ 378 01b0 2948     		ldr	r0, .L46
+ 379 01b2 D0F81824 		ldr	r2, [r0, #1048]
+ 380 01b6 344C     		ldr	r4, .L46+48
+ 381 01b8 E45C     		ldrb	r4, [r4, r3]	@ zero_extendqisi2
+ 382 01ba 0121     		movs	r1, #1
+ 383 01bc A140     		lsls	r1, r1, r4
+ 384 01be 0A43     		orrs	r2, r2, r1
+ 385 01c0 C0F81824 		str	r2, [r0, #1048]
+ 386 01c4 30E0     		b	.L29
+ 387              	.L40:
+ 162:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 388              		.loc 1 162 21 view .LVU108
+ 162:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 389              		.loc 1 162 25 is_stmt 0 view .LVU109
+ 390 01c6 314A     		ldr	r2, .L46+52
+ 391 01c8 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 162:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 392              		.loc 1 162 24 view .LVU110
+ 393 01ca 52B1     		cbz	r2, .L31
+ 162:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 394              		.loc 1 162 34 is_stmt 1 discriminator 1 view .LVU111
+ 395 01cc 2248     		ldr	r0, .L46
+ 396 01ce D0F81824 		ldr	r2, [r0, #1048]
+ 397 01d2 2D4C     		ldr	r4, .L46+48
+ 398 01d4 E45C     		ldrb	r4, [r4, r3]	@ zero_extendqisi2
+ 399 01d6 0121     		movs	r1, #1
+ 400 01d8 A140     		lsls	r1, r1, r4
+ 401 01da 0A43     		orrs	r2, r2, r1
+ 402 01dc C0F81824 		str	r2, [r0, #1048]
+ 403 01e0 22E0     		b	.L29
+ 404              	.L31:
+ 163:Core/Src/main_dop.c ****                 }
+ 405              		.loc 1 163 34 view .LVU112
+ 406 01e2 1D4C     		ldr	r4, .L46
+ 407 01e4 D4F81824 		ldr	r2, [r4, #1048]
+ 408 01e8 2748     		ldr	r0, .L46+48
+ 409 01ea C05C     		ldrb	r0, [r0, r3]	@ zero_extendqisi2
+ 410 01ec 1030     		adds	r0, r0, #16
+ 411 01ee 0121     		movs	r1, #1
+ 412 01f0 8140     		lsls	r1, r1, r0
+ 413 01f2 0A43     		orrs	r2, r2, r1
+ 414 01f4 C4F81824 		str	r2, [r4, #1048]
+ 415 01f8 16E0     		b	.L29
+ 416              	.L32:
+ 168:Core/Src/main_dop.c ****                     else        {REWRITE_BIT(GPIOB_BSRR, led[i]);}
+ 417              		.loc 1 168 34 view .LVU113
+ 418 01fa 174C     		ldr	r4, .L46
+ 419 01fc D4F81824 		ldr	r2, [r4, #1048]
+ 420 0200 2148     		ldr	r0, .L46+48
+ 421 0202 C05C     		ldrb	r0, [r0, r3]	@ zero_extendqisi2
+ 422 0204 1030     		adds	r0, r0, #16
+ 423 0206 0121     		movs	r1, #1
+ 424 0208 8140     		lsls	r1, r1, r0
+ 425 020a 0A43     		orrs	r2, r2, r1
+ 426 020c C4F81824 		str	r2, [r4, #1048]
+ 427 0210 0AE0     		b	.L29
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 12
+
+
+ 428              	.L27:
+ 169:Core/Src/main_dop.c ****                 } 
+ 170:Core/Src/main_dop.c ****             }
+ 171:Core/Src/main_dop.c ****             else {REWRITE_BIT(GPIOB_BSRR, led[i]);}            
+ 429              		.loc 1 171 19 view .LVU114
+ 430 0212 114C     		ldr	r4, .L46
+ 431 0214 D4F81824 		ldr	r2, [r4, #1048]
+ 432 0218 1B49     		ldr	r1, .L46+48
+ 433 021a C85C     		ldrb	r0, [r1, r3]	@ zero_extendqisi2
+ 434 021c 1030     		adds	r0, r0, #16
+ 435 021e 0121     		movs	r1, #1
+ 436 0220 8140     		lsls	r1, r1, r0
+ 437 0222 0A43     		orrs	r2, r2, r1
+ 438 0224 C4F81824 		str	r2, [r4, #1048]
+ 439              	.L29:
+ 152:Core/Src/main_dop.c ****         {
+ 440              		.loc 1 152 37 discriminator 2 view .LVU115
+ 441 0228 0133     		adds	r3, r3, #1
+ 442              	.LVL11:
+ 152:Core/Src/main_dop.c ****         {
+ 443              		.loc 1 152 37 is_stmt 0 discriminator 2 view .LVU116
+ 444 022a DBB2     		uxtb	r3, r3
+ 445              	.LVL12:
+ 446              	.L33:
+ 152:Core/Src/main_dop.c ****         {
+ 447              		.loc 1 152 31 is_stmt 1 discriminator 1 view .LVU117
+ 448 022c 052B     		cmp	r3, #5
+ 449 022e 2FD8     		bhi	.L41
+ 154:Core/Src/main_dop.c ****             {
+ 450              		.loc 1 154 13 view .LVU118
+ 154:Core/Src/main_dop.c ****             {
+ 451              		.loc 1 154 25 is_stmt 0 view .LVU119
+ 452 0230 0B4A     		ldr	r2, .L46+8
+ 453 0232 D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
+ 154:Core/Src/main_dop.c ****             {
+ 454              		.loc 1 154 15 view .LVU120
+ 455 0234 002A     		cmp	r2, #0
+ 456 0236 ECD0     		beq	.L27
+ 156:Core/Src/main_dop.c ****                 {
+ 457              		.loc 1 156 17 is_stmt 1 view .LVU121
+ 156:Core/Src/main_dop.c ****                 {
+ 458              		.loc 1 156 30 is_stmt 0 view .LVU122
+ 459 0238 0C4A     		ldr	r2, .L46+20
+ 460 023a D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
+ 156:Core/Src/main_dop.c ****                 {
+ 461              		.loc 1 156 20 view .LVU123
+ 462 023c 002A     		cmp	r2, #0
+ 463 023e B0D1     		bne	.L28
+ 158:Core/Src/main_dop.c ****                 }
+ 464              		.loc 1 158 21 is_stmt 1 view .LVU124
+ 465 0240 0548     		ldr	r0, .L46
+ 466 0242 D0F81824 		ldr	r2, [r0, #1048]
+ 467 0246 104C     		ldr	r4, .L46+48
+ 468 0248 E45C     		ldrb	r4, [r4, r3]	@ zero_extendqisi2
+ 469 024a 0121     		movs	r1, #1
+ 470 024c A140     		lsls	r1, r1, r4
+ 471 024e 0A43     		orrs	r2, r2, r1
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 13
+
+
+ 472 0250 C0F81824 		str	r2, [r0, #1048]
+ 473 0254 E8E7     		b	.L29
+ 474              	.L47:
+ 475 0256 00BF     		.align	2
+ 476              	.L46:
+ 477 0258 00000240 		.word	1073872896
+ 478 025c 00000000 		.word	cur_led
+ 479 0260 00000000 		.word	led_state
+ 480 0264 00000000 		.word	step
+ 481 0268 00000000 		.word	cursor
+ 482 026c 00000000 		.word	led_blink
+ 483 0270 00000000 		.word	butt_3_state
+ 484 0274 00000000 		.word	butt_3_count
+ 485 0278 00000000 		.word	butt_3_long_push
+ 486 027c 00000000 		.word	step_max
+ 487 0280 00000000 		.word	step_min
+ 488 0284 00000000 		.word	flag_2
+ 489 0288 00000000 		.word	led
+ 490 028c 00000000 		.word	flag_1
+ 491              	.L41:
+ 492              	.LBE8:
+ 172:Core/Src/main_dop.c ****         }
+ 173:Core/Src/main_dop.c ****         // обновление состояний светодиодов
+ 174:Core/Src/main_dop.c ****         led_0_state = led_state[0];        led_1_state = led_state[1];        led_2_state = led_sta
+ 493              		.loc 1 174 9 view .LVU125
+ 494              		.loc 1 174 32 is_stmt 0 view .LVU126
+ 495 0290 514B     		ldr	r3, .L48
+ 496              	.LVL13:
+ 497              		.loc 1 174 32 view .LVU127
+ 498 0292 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 499              		.loc 1 174 21 view .LVU128
+ 500 0294 514A     		ldr	r2, .L48+4
+ 501 0296 1170     		strb	r1, [r2]
+ 502              		.loc 1 174 44 is_stmt 1 view .LVU129
+ 503              		.loc 1 174 67 is_stmt 0 view .LVU130
+ 504 0298 5978     		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 505              		.loc 1 174 56 view .LVU131
+ 506 029a 514A     		ldr	r2, .L48+8
+ 507 029c 1170     		strb	r1, [r2]
+ 508              		.loc 1 174 79 is_stmt 1 view .LVU132
+ 509              		.loc 1 174 102 is_stmt 0 view .LVU133
+ 510 029e 9978     		ldrb	r1, [r3, #2]	@ zero_extendqisi2
+ 511              		.loc 1 174 91 view .LVU134
+ 512 02a0 504A     		ldr	r2, .L48+12
+ 513 02a2 1170     		strb	r1, [r2]
+ 175:Core/Src/main_dop.c ****         led_3_state = led_state[3];        led_4_state = led_state[4];        led_5_state = led_sta
+ 514              		.loc 1 175 9 is_stmt 1 view .LVU135
+ 515              		.loc 1 175 32 is_stmt 0 view .LVU136
+ 516 02a4 D978     		ldrb	r1, [r3, #3]	@ zero_extendqisi2
+ 517              		.loc 1 175 21 view .LVU137
+ 518 02a6 504A     		ldr	r2, .L48+16
+ 519 02a8 1170     		strb	r1, [r2]
+ 520              		.loc 1 175 44 is_stmt 1 view .LVU138
+ 521              		.loc 1 175 67 is_stmt 0 view .LVU139
+ 522 02aa 1979     		ldrb	r1, [r3, #4]	@ zero_extendqisi2
+ 523              		.loc 1 175 56 view .LVU140
+ 524 02ac 4F4A     		ldr	r2, .L48+20
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 14
+
+
+ 525 02ae 1170     		strb	r1, [r2]
+ 526              		.loc 1 175 79 is_stmt 1 view .LVU141
+ 527              		.loc 1 175 102 is_stmt 0 view .LVU142
+ 528 02b0 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+ 529              		.loc 1 175 91 view .LVU143
+ 530 02b2 4F4B     		ldr	r3, .L48+24
+ 531 02b4 1A70     		strb	r2, [r3]
+ 176:Core/Src/main_dop.c **** 
+ 177:Core/Src/main_dop.c ****         led_0_blink = led_blink[0];        led_1_blink = led_blink[1];        led_2_blink = led_bli
+ 532              		.loc 1 177 9 is_stmt 1 view .LVU144
+ 533              		.loc 1 177 32 is_stmt 0 view .LVU145
+ 534 02b6 4F4B     		ldr	r3, .L48+28
+ 535 02b8 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 536              		.loc 1 177 21 view .LVU146
+ 537 02ba 4F4A     		ldr	r2, .L48+32
+ 538 02bc 1170     		strb	r1, [r2]
+ 539              		.loc 1 177 44 is_stmt 1 view .LVU147
+ 540              		.loc 1 177 67 is_stmt 0 view .LVU148
+ 541 02be 5978     		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+ 542              		.loc 1 177 56 view .LVU149
+ 543 02c0 4E4A     		ldr	r2, .L48+36
+ 544 02c2 1170     		strb	r1, [r2]
+ 545              		.loc 1 177 79 is_stmt 1 view .LVU150
+ 546              		.loc 1 177 102 is_stmt 0 view .LVU151
+ 547 02c4 9978     		ldrb	r1, [r3, #2]	@ zero_extendqisi2
+ 548              		.loc 1 177 91 view .LVU152
+ 549 02c6 4E4A     		ldr	r2, .L48+40
+ 550 02c8 1170     		strb	r1, [r2]
+ 178:Core/Src/main_dop.c ****         led_3_blink = led_blink[3];        led_4_blink = led_blink[4];        led_5_blink = led_bli
+ 551              		.loc 1 178 9 is_stmt 1 view .LVU153
+ 552              		.loc 1 178 32 is_stmt 0 view .LVU154
+ 553 02ca D978     		ldrb	r1, [r3, #3]	@ zero_extendqisi2
+ 554              		.loc 1 178 21 view .LVU155
+ 555 02cc 4D4A     		ldr	r2, .L48+44
+ 556 02ce 1170     		strb	r1, [r2]
+ 557              		.loc 1 178 44 is_stmt 1 view .LVU156
+ 558              		.loc 1 178 67 is_stmt 0 view .LVU157
+ 559 02d0 1979     		ldrb	r1, [r3, #4]	@ zero_extendqisi2
+ 560              		.loc 1 178 56 view .LVU158
+ 561 02d2 4D4A     		ldr	r2, .L48+48
+ 562 02d4 1170     		strb	r1, [r2]
+ 563              		.loc 1 178 79 is_stmt 1 view .LVU159
+ 564              		.loc 1 178 102 is_stmt 0 view .LVU160
+ 565 02d6 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+ 566              		.loc 1 178 91 view .LVU161
+ 567 02d8 4C4B     		ldr	r3, .L48+52
+ 568 02da 1A70     		strb	r2, [r3]
+  70:Core/Src/main_dop.c ****         // счётчики для реализации "таймера"
+ 569              		.loc 1 70 11 is_stmt 1 view .LVU162
+ 570              	.LVL14:
+ 571              	.L35:
+  70:Core/Src/main_dop.c ****         // счётчики для реализации "таймера"
+ 572              		.loc 1 70 5 view .LVU163
+  72:Core/Src/main_dop.c ****         count_2 ++;
+ 573              		.loc 1 72 9 view .LVU164
+  72:Core/Src/main_dop.c ****         count_2 ++;
+ 574              		.loc 1 72 17 is_stmt 0 view .LVU165
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 15
+
+
+ 575 02dc 4C4B     		ldr	r3, .L48+56
+ 576 02de 1868     		ldr	r0, [r3]
+ 577 02e0 0130     		adds	r0, r0, #1
+ 578 02e2 1860     		str	r0, [r3]
+  73:Core/Src/main_dop.c **** 
+ 579              		.loc 1 73 9 is_stmt 1 view .LVU166
+  73:Core/Src/main_dop.c **** 
+ 580              		.loc 1 73 17 is_stmt 0 view .LVU167
+ 581 02e4 4B4B     		ldr	r3, .L48+60
+ 582 02e6 1968     		ldr	r1, [r3]
+ 583 02e8 0131     		adds	r1, r1, #1
+ 584 02ea 1960     		str	r1, [r3]
+  76:Core/Src/main_dop.c ****         {   
+ 585              		.loc 1 76 9 is_stmt 1 view .LVU168
+  76:Core/Src/main_dop.c ****         {   
+ 586              		.loc 1 76 14 is_stmt 0 view .LVU169
+ 587 02ec 4A4B     		ldr	r3, .L48+64
+ 588 02ee D3F81038 		ldr	r3, [r3, #2064]
+ 589 02f2 03F00103 		and	r3, r3, #1
+  76:Core/Src/main_dop.c ****         {   
+ 590              		.loc 1 76 45 view .LVU170
+ 591 02f6 494A     		ldr	r2, .L48+68
+ 592 02f8 92F800C0 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 593 02fc BCFA8CF4 		clz	r4, ip
+ 594 0300 6409     		lsrs	r4, r4, #5
+ 595 0302 6345     		cmp	r3, ip
+ 596 0304 0CBF     		ite	eq
+ 597 0306 0022     		moveq	r2, #0
+ 598 0308 04F00102 		andne	r2, r4, #1
+  76:Core/Src/main_dop.c ****         {   
+ 599              		.loc 1 76 12 view .LVU171
+ 600 030c 002A     		cmp	r2, #0
+ 601 030e 7FF47CAE 		bne	.L42
+ 602              	.L2:
+  92:Core/Src/main_dop.c ****         {   
+ 603              		.loc 1 92 9 is_stmt 1 view .LVU172
+  92:Core/Src/main_dop.c ****         {   
+ 604              		.loc 1 92 14 is_stmt 0 view .LVU173
+ 605 0312 414B     		ldr	r3, .L48+64
+ 606 0314 D3F81038 		ldr	r3, [r3, #2064]
+ 607 0318 03F00203 		and	r3, r3, #2
+  92:Core/Src/main_dop.c ****         {   
+ 608              		.loc 1 92 45 view .LVU174
+ 609 031c 404A     		ldr	r2, .L48+72
+ 610 031e 92F800C0 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 611 0322 BCFA8CF4 		clz	r4, ip
+ 612 0326 6409     		lsrs	r4, r4, #5
+ 613 0328 6345     		cmp	r3, ip
+ 614 032a 0CBF     		ite	eq
+ 615 032c 0022     		moveq	r2, #0
+ 616 032e 04F00102 		andne	r2, r4, #1
+  92:Core/Src/main_dop.c ****         {   
+ 617              		.loc 1 92 12 view .LVU175
+ 618 0332 002A     		cmp	r2, #0
+ 619 0334 7FF49DAE 		bne	.L43
+ 620              	.L8:
+ 109:Core/Src/main_dop.c ****         {   
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 16
+
+
+ 621              		.loc 1 109 10 is_stmt 1 view .LVU176
+ 109:Core/Src/main_dop.c ****         {   
+ 622              		.loc 1 109 15 is_stmt 0 view .LVU177
+ 623 0338 374B     		ldr	r3, .L48+64
+ 624 033a D3F81038 		ldr	r3, [r3, #2064]
+ 625 033e 03F00403 		and	r3, r3, #4
+ 109:Core/Src/main_dop.c ****         {   
+ 626              		.loc 1 109 46 view .LVU178
+ 627 0342 384A     		ldr	r2, .L48+76
+ 628 0344 92F800C0 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 629 0348 BCFA8CF4 		clz	r4, ip
+ 630 034c 6409     		lsrs	r4, r4, #5
+ 631 034e 6345     		cmp	r3, ip
+ 632 0350 0CBF     		ite	eq
+ 633 0352 0022     		moveq	r2, #0
+ 634 0354 04F00102 		andne	r2, r4, #1
+ 109:Core/Src/main_dop.c ****         {   
+ 635              		.loc 1 109 13 view .LVU179
+ 636 0358 002A     		cmp	r2, #0
+ 637 035a 7FF4BDAE 		bne	.L44
+ 638              	.L14:
+ 120:Core/Src/main_dop.c ****         {   
+ 639              		.loc 1 120 9 is_stmt 1 view .LVU180
+ 120:Core/Src/main_dop.c ****         {   
+ 640              		.loc 1 120 14 is_stmt 0 view .LVU181
+ 641 035e 2E4B     		ldr	r3, .L48+64
+ 642 0360 D3F81048 		ldr	r4, [r3, #2064]
+ 643 0364 04F00803 		and	r3, r4, #8
+ 120:Core/Src/main_dop.c ****         {   
+ 644              		.loc 1 120 45 view .LVU182
+ 645 0368 2F4A     		ldr	r2, .L48+80
+ 646 036a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 647 036c D31A     		subs	r3, r2, r3
+ 648 036e 18BF     		it	ne
+ 649 0370 0123     		movne	r3, #1
+ 650 0372 002A     		cmp	r2, #0
+ 651 0374 18BF     		it	ne
+ 652 0376 0023     		movne	r3, #0
+ 120:Core/Src/main_dop.c ****         {   
+ 653              		.loc 1 120 12 view .LVU183
+ 654 0378 002B     		cmp	r3, #0
+ 655 037a 7FF4D3AE 		bne	.L45
+ 656              	.L17:
+ 141:Core/Src/main_dop.c ****         butt_1_state = READ_GPIOC(1);
+ 657              		.loc 1 141 9 is_stmt 1 view .LVU184
+ 141:Core/Src/main_dop.c ****         butt_1_state = READ_GPIOC(1);
+ 658              		.loc 1 141 24 is_stmt 0 view .LVU185
+ 659 037e 264B     		ldr	r3, .L48+64
+ 660 0380 93F81038 		ldrb	r3, [r3, #2064]	@ zero_extendqisi2
+ 661 0384 03F00104 		and	r4, r3, #1
+ 141:Core/Src/main_dop.c ****         butt_1_state = READ_GPIOC(1);
+ 662              		.loc 1 141 22 view .LVU186
+ 663 0388 244A     		ldr	r2, .L48+68
+ 664 038a 1470     		strb	r4, [r2]
+ 142:Core/Src/main_dop.c ****         butt_2_state = READ_GPIOC(2);
+ 665              		.loc 1 142 9 is_stmt 1 view .LVU187
+ 142:Core/Src/main_dop.c ****         butt_2_state = READ_GPIOC(2);
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 17
+
+
+ 666              		.loc 1 142 24 is_stmt 0 view .LVU188
+ 667 038c 03F00204 		and	r4, r3, #2
+ 142:Core/Src/main_dop.c ****         butt_2_state = READ_GPIOC(2);
+ 668              		.loc 1 142 22 view .LVU189
+ 669 0390 234A     		ldr	r2, .L48+72
+ 670 0392 1470     		strb	r4, [r2]
+ 143:Core/Src/main_dop.c ****         butt_3_state = READ_GPIOC(3);
+ 671              		.loc 1 143 9 is_stmt 1 view .LVU190
+ 143:Core/Src/main_dop.c ****         butt_3_state = READ_GPIOC(3);
+ 672              		.loc 1 143 24 is_stmt 0 view .LVU191
+ 673 0394 03F00404 		and	r4, r3, #4
+ 143:Core/Src/main_dop.c ****         butt_3_state = READ_GPIOC(3);
+ 674              		.loc 1 143 22 view .LVU192
+ 675 0398 224A     		ldr	r2, .L48+76
+ 676 039a 1470     		strb	r4, [r2]
+ 144:Core/Src/main_dop.c **** 
+ 677              		.loc 1 144 9 is_stmt 1 view .LVU193
+ 144:Core/Src/main_dop.c **** 
+ 678              		.loc 1 144 24 is_stmt 0 view .LVU194
+ 679 039c 03F00803 		and	r3, r3, #8
+ 144:Core/Src/main_dop.c **** 
+ 680              		.loc 1 144 22 view .LVU195
+ 681 03a0 214A     		ldr	r2, .L48+80
+ 682 03a2 1370     		strb	r3, [r2]
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 683              		.loc 1 148 9 is_stmt 1 view .LVU196
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 684              		.loc 1 148 12 is_stmt 0 view .LVU197
+ 685 03a4 46F2A713 		movw	r3, #24999
+ 686 03a8 9842     		cmp	r0, r3
+ 687 03aa 07D9     		bls	.L25
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 688              		.loc 1 148 53 is_stmt 1 discriminator 1 view .LVU198
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 689              		.loc 1 148 61 is_stmt 0 discriminator 1 view .LVU199
+ 690 03ac 184B     		ldr	r3, .L48+56
+ 691 03ae 0022     		movs	r2, #0
+ 692 03b0 1A60     		str	r2, [r3]
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 693              		.loc 1 148 66 is_stmt 1 discriminator 1 view .LVU200
+ 148:Core/Src/main_dop.c ****         if (count_2 >= base_frequency / T_2 * 0.5) {count_2 = 0; flag_2 ^= 1;}
+ 694              		.loc 1 148 73 is_stmt 0 discriminator 1 view .LVU201
+ 695 03b2 1E4A     		ldr	r2, .L48+84
+ 696 03b4 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 697 03b6 83F00103 		eor	r3, r3, #1
+ 698 03ba 1370     		strb	r3, [r2]
+ 699              	.L25:
+ 149:Core/Src/main_dop.c **** 
+ 700              		.loc 1 149 9 is_stmt 1 view .LVU202
+ 149:Core/Src/main_dop.c **** 
+ 701              		.loc 1 149 12 is_stmt 0 view .LVU203
+ 702 03bc 42F20F73 		movw	r3, #9999
+ 703 03c0 9942     		cmp	r1, r3
+ 704 03c2 07D9     		bls	.L26
+ 149:Core/Src/main_dop.c **** 
+ 705              		.loc 1 149 53 is_stmt 1 discriminator 1 view .LVU204
+ 149:Core/Src/main_dop.c **** 
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 18
+
+
+ 706              		.loc 1 149 61 is_stmt 0 discriminator 1 view .LVU205
+ 707 03c4 134B     		ldr	r3, .L48+60
+ 708 03c6 0022     		movs	r2, #0
+ 709 03c8 1A60     		str	r2, [r3]
+ 149:Core/Src/main_dop.c **** 
+ 710              		.loc 1 149 66 is_stmt 1 discriminator 1 view .LVU206
+ 149:Core/Src/main_dop.c **** 
+ 711              		.loc 1 149 73 is_stmt 0 discriminator 1 view .LVU207
+ 712 03ca 194A     		ldr	r2, .L48+88
+ 713 03cc 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 714 03ce 83F00103 		eor	r3, r3, #1
+ 715 03d2 1370     		strb	r3, [r2]
+ 716              	.L26:
+ 717              	.LBB9:
+  98:Core/Src/main_dop.c ****                 {
+ 718              		.loc 1 98 30 view .LVU208
+ 719 03d4 0023     		movs	r3, #0
+ 720 03d6 29E7     		b	.L33
+ 721              	.L49:
+ 722              		.align	2
+ 723              	.L48:
+ 724 03d8 00000000 		.word	led_state
+ 725 03dc 00000000 		.word	led_0_state
+ 726 03e0 00000000 		.word	led_1_state
+ 727 03e4 00000000 		.word	led_2_state
+ 728 03e8 00000000 		.word	led_3_state
+ 729 03ec 00000000 		.word	led_4_state
+ 730 03f0 00000000 		.word	led_5_state
+ 731 03f4 00000000 		.word	led_blink
+ 732 03f8 00000000 		.word	led_0_blink
+ 733 03fc 00000000 		.word	led_1_blink
+ 734 0400 00000000 		.word	led_2_blink
+ 735 0404 00000000 		.word	led_3_blink
+ 736 0408 00000000 		.word	led_4_blink
+ 737 040c 00000000 		.word	led_5_blink
+ 738 0410 00000000 		.word	count_1
+ 739 0414 00000000 		.word	count_2
+ 740 0418 00000240 		.word	1073872896
+ 741 041c 00000000 		.word	butt_0_state
+ 742 0420 00000000 		.word	butt_1_state
+ 743 0424 00000000 		.word	butt_2_state
+ 744 0428 00000000 		.word	butt_3_state
+ 745 042c 00000000 		.word	flag_1
+ 746 0430 00000000 		.word	flag_2
+ 747              	.LBE9:
+ 748              		.cfi_endproc
+ 749              	.LFE0:
+ 751              		.global	led_5_blink
+ 752              		.section	.bss.led_5_blink,"aw",%nobits
+ 755              	led_5_blink:
+ 756 0000 00       		.space	1
+ 757              		.global	led_4_blink
+ 758              		.section	.bss.led_4_blink,"aw",%nobits
+ 761              	led_4_blink:
+ 762 0000 00       		.space	1
+ 763              		.global	led_3_blink
+ 764              		.section	.bss.led_3_blink,"aw",%nobits
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 19
+
+
+ 767              	led_3_blink:
+ 768 0000 00       		.space	1
+ 769              		.global	led_2_blink
+ 770              		.section	.bss.led_2_blink,"aw",%nobits
+ 773              	led_2_blink:
+ 774 0000 00       		.space	1
+ 775              		.global	led_1_blink
+ 776              		.section	.bss.led_1_blink,"aw",%nobits
+ 779              	led_1_blink:
+ 780 0000 00       		.space	1
+ 781              		.global	led_0_blink
+ 782              		.section	.bss.led_0_blink,"aw",%nobits
+ 785              	led_0_blink:
+ 786 0000 00       		.space	1
+ 787              		.global	led_5_state
+ 788              		.section	.bss.led_5_state,"aw",%nobits
+ 791              	led_5_state:
+ 792 0000 00       		.space	1
+ 793              		.global	led_4_state
+ 794              		.section	.bss.led_4_state,"aw",%nobits
+ 797              	led_4_state:
+ 798 0000 00       		.space	1
+ 799              		.global	led_3_state
+ 800              		.section	.bss.led_3_state,"aw",%nobits
+ 803              	led_3_state:
+ 804 0000 00       		.space	1
+ 805              		.global	led_2_state
+ 806              		.section	.bss.led_2_state,"aw",%nobits
+ 809              	led_2_state:
+ 810 0000 00       		.space	1
+ 811              		.global	led_1_state
+ 812              		.section	.bss.led_1_state,"aw",%nobits
+ 815              	led_1_state:
+ 816 0000 00       		.space	1
+ 817              		.global	led_0_state
+ 818              		.section	.bss.led_0_state,"aw",%nobits
+ 821              	led_0_state:
+ 822 0000 00       		.space	1
+ 823              		.global	led_blink
+ 824              		.section	.bss.led_blink,"aw",%nobits
+ 825              		.align	2
+ 828              	led_blink:
+ 829 0000 00000000 		.space	6
+ 829      0000
+ 830              		.global	led_state
+ 831              		.section	.bss.led_state,"aw",%nobits
+ 832              		.align	2
+ 835              	led_state:
+ 836 0000 00000000 		.space	6
+ 836      0000
+ 837              		.global	led
+ 838              		.section	.data.led,"aw"
+ 839              		.align	2
+ 842              	led:
+ 843 0000 06070809 		.ascii	"\006\007\010\011\012\014"
+ 843      0A0C
+ 844              		.global	cur_led
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 20
+
+
+ 845              		.section	.data.cur_led,"aw"
+ 848              	cur_led:
+ 849 0000 FF       		.byte	-1
+ 850              		.global	butt_3_long_push
+ 851              		.section	.data.butt_3_long_push,"aw"
+ 852              		.align	2
+ 855              	butt_3_long_push:
+ 856 0000 20A10700 		.word	500000
+ 857              		.global	butt_3_count
+ 858              		.section	.bss.butt_3_count,"aw",%nobits
+ 859              		.align	2
+ 862              	butt_3_count:
+ 863 0000 00000000 		.space	4
+ 864              		.global	cursor
+ 865              		.section	.bss.cursor,"aw",%nobits
+ 868              	cursor:
+ 869 0000 00       		.space	1
+ 870              		.global	step
+ 871              		.section	.data.step,"aw"
+ 874              	step:
+ 875 0000 01       		.byte	1
+ 876              		.global	step_max
+ 877              		.section	.data.step_max,"aw"
+ 880              	step_max:
+ 881 0000 06       		.byte	6
+ 882              		.global	step_min
+ 883              		.section	.data.step_min,"aw"
+ 886              	step_min:
+ 887 0000 01       		.byte	1
+ 888              		.global	butt_3_state
+ 889              		.section	.data.butt_3_state,"aw"
+ 892              	butt_3_state:
+ 893 0000 01       		.byte	1
+ 894              		.global	butt_2_state
+ 895              		.section	.data.butt_2_state,"aw"
+ 898              	butt_2_state:
+ 899 0000 01       		.byte	1
+ 900              		.global	butt_1_state
+ 901              		.section	.data.butt_1_state,"aw"
+ 904              	butt_1_state:
+ 905 0000 01       		.byte	1
+ 906              		.global	butt_0_state
+ 907              		.section	.data.butt_0_state,"aw"
+ 910              	butt_0_state:
+ 911 0000 01       		.byte	1
+ 912              		.global	count_2
+ 913              		.section	.bss.count_2,"aw",%nobits
+ 914              		.align	2
+ 917              	count_2:
+ 918 0000 00000000 		.space	4
+ 919              		.global	count_1
+ 920              		.section	.bss.count_1,"aw",%nobits
+ 921              		.align	2
+ 924              	count_1:
+ 925 0000 00000000 		.space	4
+ 926              		.global	flag_2
+ 927              		.section	.bss.flag_2,"aw",%nobits
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 21
+
+
+ 930              	flag_2:
+ 931 0000 00       		.space	1
+ 932              		.global	flag_1
+ 933              		.section	.bss.flag_1,"aw",%nobits
+ 936              	flag_1:
+ 937 0000 00       		.space	1
+ 938              		.text
+ 939              	.Letext0:
+ 940              		.file 2 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/ma
+ 941              		.file 3 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/sy
+ 942              		.file 4 "Core/Inc/init_dop.h"
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main_dop.c
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:21     .text.main:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:27     .text.main:00000000 main
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:477    .text.main:00000258 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:848    .data.cur_led:00000000 cur_led
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:835    .bss.led_state:00000000 led_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:874    .data.step:00000000 step
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:868    .bss.cursor:00000000 cursor
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:828    .bss.led_blink:00000000 led_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:892    .data.butt_3_state:00000000 butt_3_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:862    .bss.butt_3_count:00000000 butt_3_count
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:855    .data.butt_3_long_push:00000000 butt_3_long_push
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:880    .data.step_max:00000000 step_max
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:886    .data.step_min:00000000 step_min
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:930    .bss.flag_2:00000000 flag_2
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:842    .data.led:00000000 led
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:936    .bss.flag_1:00000000 flag_1
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:495    .text.main:00000290 $t
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:724    .text.main:000003d8 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:821    .bss.led_0_state:00000000 led_0_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:815    .bss.led_1_state:00000000 led_1_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:809    .bss.led_2_state:00000000 led_2_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:803    .bss.led_3_state:00000000 led_3_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:797    .bss.led_4_state:00000000 led_4_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:791    .bss.led_5_state:00000000 led_5_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:785    .bss.led_0_blink:00000000 led_0_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:779    .bss.led_1_blink:00000000 led_1_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:773    .bss.led_2_blink:00000000 led_2_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:767    .bss.led_3_blink:00000000 led_3_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:761    .bss.led_4_blink:00000000 led_4_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:755    .bss.led_5_blink:00000000 led_5_blink
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:924    .bss.count_1:00000000 count_1
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:917    .bss.count_2:00000000 count_2
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:910    .data.butt_0_state:00000000 butt_0_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:904    .data.butt_1_state:00000000 butt_1_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:898    .data.butt_2_state:00000000 butt_2_state
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:756    .bss.led_5_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:762    .bss.led_4_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:768    .bss.led_3_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:774    .bss.led_2_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:780    .bss.led_1_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:786    .bss.led_0_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:792    .bss.led_5_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:798    .bss.led_4_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:804    .bss.led_3_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:810    .bss.led_2_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:816    .bss.led_1_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:822    .bss.led_0_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:825    .bss.led_blink:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:832    .bss.led_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:839    .data.led:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:852    .data.butt_3_long_push:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:859    .bss.butt_3_count:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:869    .bss.cursor:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:914    .bss.count_2:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:921    .bss.count_1:00000000 $d
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s 			page 23
+
+
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:931    .bss.flag_2:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\ccElrkBP.s:937    .bss.flag_1:00000000 $d
+
+UNDEFINED SYMBOLS
+GPIO_init_dop

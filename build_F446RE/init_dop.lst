@@ -1,0 +1,235 @@
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"init_dop.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/init_dop.c"
+  20              		.section	.text.GPIOX_INIT,"ax",%progbits
+  21              		.align	1
+  22              		.global	GPIOX_INIT
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	GPIOX_INIT:
+  28              	.LVL0:
+  29              	.LFB0:
+   1:Core/Src/init_dop.c **** #include <stdint.h>
+   2:Core/Src/init_dop.c **** #include <init.h>
+   3:Core/Src/init_dop.c **** #include <init_dop.h>  
+   4:Core/Src/init_dop.c **** 
+   5:Core/Src/init_dop.c **** void GPIOX_INIT(uint32_t GPIOX, 
+   6:Core/Src/init_dop.c ****                 uint8_t mode, 
+   7:Core/Src/init_dop.c ****                 uint8_t type, 
+   8:Core/Src/init_dop.c ****                 uint8_t speed,
+   9:Core/Src/init_dop.c ****                 uint8_t PUPDR,
+  10:Core/Src/init_dop.c ****                 uint8_t n)
+  11:Core/Src/init_dop.c **** 
+  12:Core/Src/init_dop.c ****                 
+  13:Core/Src/init_dop.c **** {
+  30              		.loc 1 13 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 8, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 13 1 is_stmt 0 view .LVU1
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40 0002 9DF80CE0 		ldrb	lr, [sp, #12]	@ zero_extendqisi2
+  14:Core/Src/init_dop.c ****     SET_MODE_GPIO   (GPIOX_MODER(GPIOX),   mode,   n);
+  41              		.loc 1 14 5 is_stmt 1 view .LVU2
+  42 0006 4FEA4E0C 		lsl	ip, lr, #1
+  43 000a 01FA0CF1 		lsl	r1, r1, ip
+  44              	.LVL1:
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s 			page 2
+
+
+  45              		.loc 1 14 5 is_stmt 0 view .LVU3
+  46 000e 0468     		ldr	r4, [r0]
+  47 0010 2143     		orrs	r1, r1, r4
+  48 0012 0160     		str	r1, [r0]
+  15:Core/Src/init_dop.c ****     SET_OTYPER_GPIO (GPIOX_OTYPER(GPIOX),   type,   n);
+  49              		.loc 1 15 5 is_stmt 1 view .LVU4
+  50 0014 4168     		ldr	r1, [r0, #4]
+  51 0016 02FA0EF2 		lsl	r2, r2, lr
+  52              	.LVL2:
+  53              		.loc 1 15 5 is_stmt 0 view .LVU5
+  54 001a 1143     		orrs	r1, r1, r2
+  55 001c 4160     		str	r1, [r0, #4]
+  16:Core/Src/init_dop.c ****     SET_OSPEED_GPIO (GPIOX_OSPEED(GPIOX),   speed,  n);
+  56              		.loc 1 16 5 is_stmt 1 view .LVU6
+  57 001e 8268     		ldr	r2, [r0, #8]
+  58 0020 03FA0CF3 		lsl	r3, r3, ip
+  59              	.LVL3:
+  60              		.loc 1 16 5 is_stmt 0 view .LVU7
+  61 0024 1A43     		orrs	r2, r2, r3
+  62 0026 8260     		str	r2, [r0, #8]
+  17:Core/Src/init_dop.c ****     SET_PUPDR_GPIO  (GPIOX_PUPDR(GPIOX),   PUPDR,  n);
+  63              		.loc 1 17 5 is_stmt 1 view .LVU8
+  64 0028 C368     		ldr	r3, [r0, #12]
+  65 002a 9DF80820 		ldrb	r2, [sp, #8]	@ zero_extendqisi2
+  66 002e 02FA0CF2 		lsl	r2, r2, ip
+  67 0032 1343     		orrs	r3, r3, r2
+  68 0034 C360     		str	r3, [r0, #12]
+  18:Core/Src/init_dop.c **** 
+  19:Core/Src/init_dop.c **** }
+  69              		.loc 1 19 1 is_stmt 0 view .LVU9
+  70 0036 10BD     		pop	{r4, pc}
+  71              		.loc 1 19 1 view .LVU10
+  72              		.cfi_endproc
+  73              	.LFE0:
+  75              		.section	.text.GPIO_init_dop,"ax",%progbits
+  76              		.align	1
+  77              		.global	GPIO_init_dop
+  78              		.syntax unified
+  79              		.thumb
+  80              		.thumb_func
+  82              	GPIO_init_dop:
+  83              	.LFB1:
+  20:Core/Src/init_dop.c **** 
+  21:Core/Src/init_dop.c **** void GPIO_init_dop(void)
+  22:Core/Src/init_dop.c **** {
+  84              		.loc 1 22 1 is_stmt 1 view -0
+  85              		.cfi_startproc
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 0, uses_anonymous_args = 0
+  88 0000 30B5     		push	{r4, r5, lr}
+  89              	.LCFI1:
+  90              		.cfi_def_cfa_offset 12
+  91              		.cfi_offset 4, -12
+  92              		.cfi_offset 5, -8
+  93              		.cfi_offset 14, -4
+  94 0002 83B0     		sub	sp, sp, #12
+  95              	.LCFI2:
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s 			page 3
+
+
+  96              		.cfi_def_cfa_offset 24
+  23:Core/Src/init_dop.c ****     RCC_GPIO_EN |= (RCC_GPIOB_EN + RCC_GPIOC_EN); 
+  97              		.loc 1 23 5 view .LVU12
+  98 0004 204A     		ldr	r2, .L5
+  99 0006 D2F83038 		ldr	r3, [r2, #2096]
+ 100              		.loc 1 23 17 is_stmt 0 view .LVU13
+ 101 000a 43F00603 		orr	r3, r3, #6
+ 102 000e C2F83038 		str	r3, [r2, #2096]
+  24:Core/Src/init_dop.c ****     
+  25:Core/Src/init_dop.c ****     
+  26:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 6);
+ 103              		.loc 1 26 5 is_stmt 1 view .LVU14
+ 104 0012 1E4D     		ldr	r5, .L5+4
+ 105 0014 0623     		movs	r3, #6
+ 106 0016 0193     		str	r3, [sp, #4]
+ 107 0018 0024     		movs	r4, #0
+ 108 001a 0094     		str	r4, [sp]
+ 109 001c 0123     		movs	r3, #1
+ 110 001e 2246     		mov	r2, r4
+ 111 0020 1946     		mov	r1, r3
+ 112 0022 2846     		mov	r0, r5
+ 113 0024 FFF7FEFF 		bl	GPIOX_INIT
+ 114              	.LVL4:
+  27:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 7);
+ 115              		.loc 1 27 5 view .LVU15
+ 116 0028 0723     		movs	r3, #7
+ 117 002a 0193     		str	r3, [sp, #4]
+ 118 002c 0094     		str	r4, [sp]
+ 119 002e 0123     		movs	r3, #1
+ 120 0030 2246     		mov	r2, r4
+ 121 0032 1946     		mov	r1, r3
+ 122 0034 2846     		mov	r0, r5
+ 123 0036 FFF7FEFF 		bl	GPIOX_INIT
+ 124              	.LVL5:
+  28:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 8);
+ 125              		.loc 1 28 5 view .LVU16
+ 126 003a 0823     		movs	r3, #8
+ 127 003c 0193     		str	r3, [sp, #4]
+ 128 003e 0094     		str	r4, [sp]
+ 129 0040 0123     		movs	r3, #1
+ 130 0042 2246     		mov	r2, r4
+ 131 0044 1946     		mov	r1, r3
+ 132 0046 2846     		mov	r0, r5
+ 133 0048 FFF7FEFF 		bl	GPIOX_INIT
+ 134              	.LVL6:
+  29:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 9);
+ 135              		.loc 1 29 5 view .LVU17
+ 136 004c 0923     		movs	r3, #9
+ 137 004e 0193     		str	r3, [sp, #4]
+ 138 0050 0094     		str	r4, [sp]
+ 139 0052 0123     		movs	r3, #1
+ 140 0054 2246     		mov	r2, r4
+ 141 0056 1946     		mov	r1, r3
+ 142 0058 2846     		mov	r0, r5
+ 143 005a FFF7FEFF 		bl	GPIOX_INIT
+ 144              	.LVL7:
+  30:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 10);
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s 			page 4
+
+
+ 145              		.loc 1 30 5 view .LVU18
+ 146 005e 0A23     		movs	r3, #10
+ 147 0060 0193     		str	r3, [sp, #4]
+ 148 0062 0094     		str	r4, [sp]
+ 149 0064 0123     		movs	r3, #1
+ 150 0066 2246     		mov	r2, r4
+ 151 0068 1946     		mov	r1, r3
+ 152 006a 2846     		mov	r0, r5
+ 153 006c FFF7FEFF 		bl	GPIOX_INIT
+ 154              	.LVL8:
+  31:Core/Src/init_dop.c ****     GPIOX_INIT(GPIOB, GPIO_Mode, GPIO_OPP, GPIO_MS, GPIO_NN, 12);
+ 155              		.loc 1 31 5 view .LVU19
+ 156 0070 0C23     		movs	r3, #12
+ 157 0072 0193     		str	r3, [sp, #4]
+ 158 0074 0094     		str	r4, [sp]
+ 159 0076 0123     		movs	r3, #1
+ 160 0078 2246     		mov	r2, r4
+ 161 007a 1946     		mov	r1, r3
+ 162 007c 2846     		mov	r0, r5
+ 163 007e FFF7FEFF 		bl	GPIOX_INIT
+ 164              	.LVL9:
+  32:Core/Src/init_dop.c **** 
+  33:Core/Src/init_dop.c **** }
+ 165              		.loc 1 33 1 is_stmt 0 view .LVU20
+ 166 0082 03B0     		add	sp, sp, #12
+ 167              	.LCFI3:
+ 168              		.cfi_def_cfa_offset 12
+ 169              		@ sp needed
+ 170 0084 30BD     		pop	{r4, r5, pc}
+ 171              	.L6:
+ 172 0086 00BF     		.align	2
+ 173              	.L5:
+ 174 0088 00300240 		.word	1073885184
+ 175 008c 00040240 		.word	1073873920
+ 176              		.cfi_endproc
+ 177              	.LFE1:
+ 179              		.text
+ 180              	.Letext0:
+ 181              		.file 2 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/ma
+ 182              		.file 3 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/sy
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 init_dop.c
+C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s:21     .text.GPIOX_INIT:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s:27     .text.GPIOX_INIT:00000000 GPIOX_INIT
+C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s:76     .text.GPIO_init_dop:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s:82     .text.GPIO_init_dop:00000000 GPIO_init_dop
+C:\Users\Asus\AppData\Local\Temp\ccSYojmX.s:174    .text.GPIO_init_dop:00000088 $d
+
+NO UNDEFINED SYMBOLS

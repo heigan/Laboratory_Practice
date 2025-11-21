@@ -1,0 +1,281 @@
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"init.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/init.c"
+  20              		.section	.text.GPIO_PC1_init,"ax",%progbits
+  21              		.align	1
+  22              		.global	GPIO_PC1_init
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	GPIO_PC1_init:
+  28              	.LFB0:
+   1:Core/Src/init.c **** #include <stdint.h>
+   2:Core/Src/init.c **** #include <init.h> 
+   3:Core/Src/init.c **** #include <stdbool.h> 
+   4:Core/Src/init.c **** void GPIO_PC1_init(void)
+   5:Core/Src/init.c **** {
+  29              		.loc 1 5 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+   6:Core/Src/init.c ****     *(uint32_t*)(0x40020800UL + 0x00UL) |= 0x04;    // В регистре мода GPIO (Moder) у
+  34              		.loc 1 6 5 view .LVU1
+  35 0000 064B     		ldr	r3, .L2
+  36 0002 D3F80028 		ldr	r2, [r3, #2048]
+  37              		.loc 1 6 41 is_stmt 0 view .LVU2
+  38 0006 42F00402 		orr	r2, r2, #4
+  39 000a C3F80028 		str	r2, [r3, #2048]
+   7:Core/Src/init.c ****     *(uint32_t*)(0x40020800UL + 0x04UL) |= 0x00;    // Выбор типа выхода. Остав
+  40              		.loc 1 7 5 is_stmt 1 view .LVU3
+   8:Core/Src/init.c ****     *(uint32_t*)(0x40020800UL + 0x08UL) |= 0x04;    // В регистр скорости рабо�
+  41              		.loc 1 8 5 view .LVU4
+  42 000e D3F80828 		ldr	r2, [r3, #2056]
+  43              		.loc 1 8 41 is_stmt 0 view .LVU5
+  44 0012 42F00402 		orr	r2, r2, #4
+  45 0016 C3F80828 		str	r2, [r3, #2056]
+   9:Core/Src/init.c ****     *(uint32_t*)(0x40020800UL + 0x0CUL) |= 0x00;    // Выобр типа подтяжки. Выб
+  46              		.loc 1 9 5 is_stmt 1 view .LVU6
+  10:Core/Src/init.c **** }
+  47              		.loc 1 10 1 is_stmt 0 view .LVU7
+  48 001a 7047     		bx	lr
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 2
+
+
+  49              	.L3:
+  50              		.align	2
+  51              	.L2:
+  52 001c 00000240 		.word	1073872896
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56              		.section	.text.GPIO_PC2_init,"ax",%progbits
+  57              		.align	1
+  58              		.global	GPIO_PC2_init
+  59              		.syntax unified
+  60              		.thumb
+  61              		.thumb_func
+  63              	GPIO_PC2_init:
+  64              	.LFB1:
+  11:Core/Src/init.c **** 
+  12:Core/Src/init.c **** void GPIO_PC2_init(void)
+  13:Core/Src/init.c **** {
+  65              		.loc 1 13 1 is_stmt 1 view -0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  14:Core/Src/init.c ****     *(uint32_t*)(GPIOC_start_adres + MODER_adr)  |= (GPIO_Mode << (2*2));    
+  70              		.loc 1 14 5 view .LVU9
+  71 0000 064B     		ldr	r3, .L5
+  72 0002 D3F80028 		ldr	r2, [r3, #2048]
+  73              		.loc 1 14 50 is_stmt 0 view .LVU10
+  74 0006 42F01002 		orr	r2, r2, #16
+  75 000a C3F80028 		str	r2, [r3, #2048]
+  15:Core/Src/init.c ****     *(uint32_t*)(GPIOC_start_adres + OTYPER_adr) |= (GPIO_OPP  << (2*2));    
+  76              		.loc 1 15 5 is_stmt 1 view .LVU11
+  16:Core/Src/init.c ****     *(uint32_t*)(GPIOC_start_adres + OSPEED_adr) |= (GPIO_MS   << (2*2));    
+  77              		.loc 1 16 5 view .LVU12
+  78 000e D3F80828 		ldr	r2, [r3, #2056]
+  79              		.loc 1 16 50 is_stmt 0 view .LVU13
+  80 0012 42F01002 		orr	r2, r2, #16
+  81 0016 C3F80828 		str	r2, [r3, #2056]
+  17:Core/Src/init.c ****     *(uint32_t*)(GPIOC_start_adres + PUPDR_adr)  |= (GPIO_NN   << (2*2));    
+  82              		.loc 1 17 5 is_stmt 1 view .LVU14
+  18:Core/Src/init.c **** }
+  83              		.loc 1 18 1 is_stmt 0 view .LVU15
+  84 001a 7047     		bx	lr
+  85              	.L6:
+  86              		.align	2
+  87              	.L5:
+  88 001c 00000240 		.word	1073872896
+  89              		.cfi_endproc
+  90              	.LFE1:
+  92              		.section	.text.GPIO_PC3_init,"ax",%progbits
+  93              		.align	1
+  94              		.global	GPIO_PC3_init
+  95              		.syntax unified
+  96              		.thumb
+  97              		.thumb_func
+  99              	GPIO_PC3_init:
+ 100              	.LFB2:
+  19:Core/Src/init.c **** 
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 3
+
+
+  20:Core/Src/init.c **** 
+  21:Core/Src/init.c **** void GPIO_PC3_init(void)
+  22:Core/Src/init.c **** {
+ 101              		.loc 1 22 1 is_stmt 1 view -0
+ 102              		.cfi_startproc
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105              		@ link register save eliminated.
+  23:Core/Src/init.c ****     SET_MODE_GPIO   (GPIOC_MODER,   GPIO_Mode,  3);
+ 106              		.loc 1 23 5 view .LVU17
+ 107 0000 064B     		ldr	r3, .L8
+ 108 0002 D3F80028 		ldr	r2, [r3, #2048]
+ 109 0006 42F04002 		orr	r2, r2, #64
+ 110 000a C3F80028 		str	r2, [r3, #2048]
+  24:Core/Src/init.c ****     SET_OTYPER_GPIO (GPIOC_OTYPER,  GPIO_OPP,   3);
+ 111              		.loc 1 24 5 view .LVU18
+  25:Core/Src/init.c ****     SET_OSPEED_GPIO (GPIOC_OSPEED,  GPIO_MS,    3);
+ 112              		.loc 1 25 5 view .LVU19
+ 113 000e D3F80828 		ldr	r2, [r3, #2056]
+ 114 0012 42F04002 		orr	r2, r2, #64
+ 115 0016 C3F80828 		str	r2, [r3, #2056]
+  26:Core/Src/init.c ****     SET_PUPDR_GPIO  (GPIOC_PUPDR,   GPIO_NN,    3);   
+ 116              		.loc 1 26 5 view .LVU20
+  27:Core/Src/init.c **** }
+ 117              		.loc 1 27 1 is_stmt 0 view .LVU21
+ 118 001a 7047     		bx	lr
+ 119              	.L9:
+ 120              		.align	2
+ 121              	.L8:
+ 122 001c 00000240 		.word	1073872896
+ 123              		.cfi_endproc
+ 124              	.LFE2:
+ 126              		.section	.text.GPIO_init,"ax",%progbits
+ 127              		.align	1
+ 128              		.global	GPIO_init
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 133              	GPIO_init:
+ 134              	.LFB3:
+  28:Core/Src/init.c **** 
+  29:Core/Src/init.c **** void GPIO_init(void)
+  30:Core/Src/init.c **** {
+ 135              		.loc 1 30 1 is_stmt 1 view -0
+ 136              		.cfi_startproc
+ 137              		@ args = 0, pretend = 0, frame = 0
+ 138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 139 0000 08B5     		push	{r3, lr}
+ 140              	.LCFI0:
+ 141              		.cfi_def_cfa_offset 8
+ 142              		.cfi_offset 3, -8
+ 143              		.cfi_offset 14, -4
+  31:Core/Src/init.c ****     RCC_GPIO_EN |= (RCC_GPIOB_EN + RCC_GPIOC_EN); 
+ 144              		.loc 1 31 5 view .LVU23
+ 145 0002 154A     		ldr	r2, .L12
+ 146 0004 D2F83038 		ldr	r3, [r2, #2096]
+ 147              		.loc 1 31 17 is_stmt 0 view .LVU24
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 4
+
+
+ 148 0008 43F00603 		orr	r3, r3, #6
+ 149 000c C2F83038 		str	r3, [r2, #2096]
+  32:Core/Src/init.c ****     //Инициализация пинов группы B (через макросы)
+  33:Core/Src/init.c **** 
+  34:Core/Src/init.c ****     SET_MODE_GPIO   (GPIOB_MODER,   GPIO_Mode,  13);
+ 150              		.loc 1 34 5 is_stmt 1 view .LVU25
+ 151 0010 124B     		ldr	r3, .L12+4
+ 152 0012 D3F80014 		ldr	r1, [r3, #1024]
+ 153 0016 41F08062 		orr	r2, r1, #67108864
+ 154 001a C3F80024 		str	r2, [r3, #1024]
+  35:Core/Src/init.c ****     SET_OTYPER_GPIO (GPIOB_OTYPER,  GPIO_OPP,   13); 
+ 155              		.loc 1 35 5 view .LVU26
+  36:Core/Src/init.c ****     SET_OSPEED_GPIO (GPIOB_OSPEED,  GPIO_MS,    13);
+ 156              		.loc 1 36 5 view .LVU27
+ 157 001e D3F80824 		ldr	r2, [r3, #1032]
+ 158 0022 42F08060 		orr	r0, r2, #67108864
+ 159 0026 C3F80804 		str	r0, [r3, #1032]
+  37:Core/Src/init.c ****     SET_PUPDR_GPIO  (GPIOB_PUPDR,   GPIO_NN,    13);
+ 160              		.loc 1 37 5 view .LVU28
+  38:Core/Src/init.c ****     
+  39:Core/Src/init.c ****     SET_MODE_GPIO   (GPIOB_MODER,   GPIO_Mode,  14);
+ 161              		.loc 1 39 5 view .LVU29
+ 162 002a 41F0A050 		orr	r0, r1, #335544320
+ 163 002e C3F80004 		str	r0, [r3, #1024]
+  40:Core/Src/init.c ****     SET_OTYPER_GPIO (GPIOB_OTYPER,  GPIO_OPP,   14); 
+ 164              		.loc 1 40 5 view .LVU30
+  41:Core/Src/init.c ****     SET_OSPEED_GPIO (GPIOB_OSPEED,  GPIO_MS,    14);
+ 165              		.loc 1 41 5 view .LVU31
+ 166 0032 42F0A050 		orr	r0, r2, #335544320
+ 167 0036 C3F80804 		str	r0, [r3, #1032]
+  42:Core/Src/init.c ****     SET_PUPDR_GPIO  (GPIOB_PUPDR,   GPIO_NN,    14); 
+ 168              		.loc 1 42 5 view .LVU32
+  43:Core/Src/init.c ****     
+  44:Core/Src/init.c ****     SET_MODE_GPIO   (GPIOB_MODER,   GPIO_Mode,  15);
+ 169              		.loc 1 44 5 view .LVU33
+ 170 003a 41F0A841 		orr	r1, r1, #1409286144
+ 171 003e C3F80014 		str	r1, [r3, #1024]
+  45:Core/Src/init.c ****     SET_OTYPER_GPIO (GPIOB_OTYPER,  GPIO_OPP,   15); 
+ 172              		.loc 1 45 5 view .LVU34
+  46:Core/Src/init.c ****     SET_OSPEED_GPIO (GPIOB_OSPEED,  GPIO_MS,    15);
+ 173              		.loc 1 46 5 view .LVU35
+ 174 0042 42F0A842 		orr	r2, r2, #1409286144
+ 175 0046 C3F80824 		str	r2, [r3, #1032]
+  47:Core/Src/init.c ****     SET_PUPDR_GPIO  (GPIOB_PUPDR,   GPIO_NN,    15); 
+ 176              		.loc 1 47 5 view .LVU36
+  48:Core/Src/init.c **** 
+  49:Core/Src/init.c ****     //Инициализация пинов группы C
+  50:Core/Src/init.c ****     // PC1 инициализированн с помощью прямой записи битов 
+  51:Core/Src/init.c ****     // PC2 инициализированн с помощью записи битов в регис
+  52:Core/Src/init.c ****     // PC3 инициализированн c мопощью функции и макросов
+  53:Core/Src/init.c ****     GPIO_PC1_init();
+ 177              		.loc 1 53 5 view .LVU37
+ 178 004a FFF7FEFF 		bl	GPIO_PC1_init
+ 179              	.LVL0:
+  54:Core/Src/init.c ****     GPIO_PC2_init();
+ 180              		.loc 1 54 5 view .LVU38
+ 181 004e FFF7FEFF 		bl	GPIO_PC2_init
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 5
+
+
+ 182              	.LVL1:
+  55:Core/Src/init.c ****     GPIO_PC3_init();   
+ 183              		.loc 1 55 5 view .LVU39
+ 184 0052 FFF7FEFF 		bl	GPIO_PC3_init
+ 185              	.LVL2:
+  56:Core/Src/init.c **** }...
+ 186              		.loc 1 56 1 is_stmt 0 view .LVU40
+ 187 0056 08BD     		pop	{r3, pc}
+ 188              	.L13:
+ 189              		.align	2
+ 190              	.L12:
+ 191 0058 00300240 		.word	1073885184
+ 192 005c 00000240 		.word	1073872896
+ 193              		.cfi_endproc
+ 194              	.LFE3:
+ 196              		.text
+ 197              	.Letext0:
+ 198              		.file 2 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/ma
+ 199              		.file 3 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/sy
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 init.c
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:21     .text.GPIO_PC1_init:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:27     .text.GPIO_PC1_init:00000000 GPIO_PC1_init
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:52     .text.GPIO_PC1_init:0000001c $d
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:57     .text.GPIO_PC2_init:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:63     .text.GPIO_PC2_init:00000000 GPIO_PC2_init
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:88     .text.GPIO_PC2_init:0000001c $d
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:93     .text.GPIO_PC3_init:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:99     .text.GPIO_PC3_init:00000000 GPIO_PC3_init
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:122    .text.GPIO_PC3_init:0000001c $d
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:127    .text.GPIO_init:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:133    .text.GPIO_init:00000000 GPIO_init
+C:\Users\Asus\AppData\Local\Temp\ccrnRiCg.s:191    .text.GPIO_init:00000058 $d
+
+NO UNDEFINED SYMBOLS

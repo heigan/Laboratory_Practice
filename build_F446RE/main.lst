@@ -1,0 +1,853 @@
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"main.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/main.c"
+  20              		.section	.text.main,"ax",%progbits
+  21              		.align	1
+  22              		.global	main
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	main:
+  28              	.LFB0:
+   1:Core/Src/main.c **** #include <stdint.h> 
+   2:Core/Src/main.c **** #include <init.h>
+   3:Core/Src/main.c **** #include <stdbool.h> 
+   4:Core/Src/main.c **** /*  порты группы B - для выхода на внешние светодиоды
+   5:Core/Src/main.c ****     B13 - красный светодиод                 led_3_state   
+   6:Core/Src/main.c ****     B14 - синий светодиод                   led_4_state
+   7:Core/Src/main.c ****     B15 - зелёный светодиод                 led_5_state
+   8:Core/Src/main.c ****     порты группы С - для работы с кнопка 
+   9:Core/Src/main.c ****     С0 - кнопка 0 (кнопка режима)
+  10:Core/Src/main.c ****     С1 - кнопка 1 (красный светодиод)       led_0_state
+  11:Core/Src/main.c ****     С2 - кнопка 2 (жёлтый светодиод)        led_1_state
+  12:Core/Src/main.c ****     С3 - кнопка 3 (зелёный светодиод)       led_2_state
+  13:Core/Src/main.c **** */
+  14:Core/Src/main.c **** 
+  15:Core/Src/main.c **** // счётчики кнопки режима
+  16:Core/Src/main.c **** uint8_t butt_0_mode;    
+  17:Core/Src/main.c **** uint8_t butt_0_mode_past;
+  18:Core/Src/main.c **** // режим работы порта кнопки: 1 - выход, 0 - вход
+  19:Core/Src/main.c **** bool butt_1_mode = true;   // режим кнопки 1
+  20:Core/Src/main.c **** bool butt_2_mode = true;   // режим кнопки 2
+  21:Core/Src/main.c **** bool butt_3_mode = true;   // режим кнопки 3
+  22:Core/Src/main.c **** 
+  23:Core/Src/main.c **** // состояние кнопок
+  24:Core/Src/main.c **** bool butt_0_state = true, butt_1_state = true, butt_2_state = true, butt_3_state = true;
+  25:Core/Src/main.c **** // состояние светодиодов
+  26:Core/Src/main.c **** bool led_0_state, led_1_state, led_2_state, led_3_state, led_4_state, led_5_state;
+  27:Core/Src/main.c **** 
+  28:Core/Src/main.c **** int main(void){
+  29              		.loc 1 28 15 view -0
+  30              		.cfi_startproc
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 2
+
+
+  31              		@ Volatile: function does not return.
+  32              		@ args = 0, pretend = 0, frame = 8
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34 0000 00B5     		push	{lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 4
+  37              		.cfi_offset 14, -4
+  38 0002 83B0     		sub	sp, sp, #12
+  39              	.LCFI1:
+  40              		.cfi_def_cfa_offset 16
+  29:Core/Src/main.c ****     GPIO_init(); // инициализация портов
+  41              		.loc 1 29 5 view .LVU1
+  42 0004 FFF7FEFF 		bl	GPIO_init
+  43              	.LVL0:
+  44 0008 B0E0     		b	.L2
+  45              	.L38:
+  30:Core/Src/main.c ****     
+  31:Core/Src/main.c ****     while (1){
+  32:Core/Src/main.c ****         // обработка кнопки смены режима
+  33:Core/Src/main.c ****         if ((READ_GPIOC(0) != butt_0_state) & (butt_0_state == 0) ) 
+  34:Core/Src/main.c ****         {   
+  35:Core/Src/main.c ****             for(volatile int i=0; i<25000; i++);
+  46              		.loc 1 35 13 view .LVU2
+  47              	.LBB2:
+  48              		.loc 1 35 17 view .LVU3
+  49              		.loc 1 35 30 is_stmt 0 view .LVU4
+  50 000a 0023     		movs	r3, #0
+  51 000c 0193     		str	r3, [sp, #4]
+  52              		.loc 1 35 13 view .LVU5
+  53 000e 02E0     		b	.L4
+  54              	.L5:
+  55              		.loc 1 35 45 is_stmt 1 discriminator 3 view .LVU6
+  56 0010 019B     		ldr	r3, [sp, #4]
+  57 0012 0133     		adds	r3, r3, #1
+  58 0014 0193     		str	r3, [sp, #4]
+  59              	.L4:
+  60              		.loc 1 35 36 discriminator 1 view .LVU7
+  61 0016 019A     		ldr	r2, [sp, #4]
+  62 0018 46F2A713 		movw	r3, #24999
+  63 001c 9A42     		cmp	r2, r3
+  64 001e F7DD     		ble	.L5
+  65              	.LBE2:
+  36:Core/Src/main.c ****             if ((READ_GPIOC(0) != butt_0_state)) 
+  66              		.loc 1 36 13 view .LVU8
+  67              		.loc 1 36 18 is_stmt 0 view .LVU9
+  68 0020 A94B     		ldr	r3, .L39
+  69 0022 D3F81038 		ldr	r3, [r3, #2064]
+  70 0026 03F00103 		and	r3, r3, #1
+  71              		.loc 1 36 16 view .LVU10
+  72 002a 9942     		cmp	r1, r3
+  73 002c 03D0     		beq	.L6
+  37:Core/Src/main.c ****                 {butt_0_mode += 1; }
+  74              		.loc 1 37 18 is_stmt 1 view .LVU11
+  75              		.loc 1 37 30 is_stmt 0 view .LVU12
+  76 002e A74A     		ldr	r2, .L39+4
+  77 0030 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  78 0032 0133     		adds	r3, r3, #1
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 3
+
+
+  79 0034 1370     		strb	r3, [r2]
+  80              	.L6:
+  38:Core/Src/main.c ****             if (butt_0_mode > 4) {butt_0_mode = 0;} 
+  81              		.loc 1 38 13 is_stmt 1 view .LVU13
+  82              		.loc 1 38 29 is_stmt 0 view .LVU14
+  83 0036 A54B     		ldr	r3, .L39+4
+  84 0038 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  85              		.loc 1 38 16 view .LVU15
+  86 003a 042B     		cmp	r3, #4
+  87 003c 40F2A480 		bls	.L3
+  88              		.loc 1 38 35 is_stmt 1 discriminator 1 view .LVU16
+  89              		.loc 1 38 47 is_stmt 0 discriminator 1 view .LVU17
+  90 0040 A24B     		ldr	r3, .L39+4
+  91 0042 0022     		movs	r2, #0
+  92 0044 1A70     		strb	r2, [r3]
+  93 0046 9FE0     		b	.L3
+  94              	.L7:
+  39:Core/Src/main.c ****         }       
+  40:Core/Src/main.c ****         // Проверка, что счётчик режима работы кнопок изме�
+  41:Core/Src/main.c ****         if ((butt_0_mode != butt_0_mode_past) && (butt_0_mode == 0)){
+  42:Core/Src/main.c ****             butt_1_mode = true;
+  43:Core/Src/main.c ****             butt_2_mode = true;
+  44:Core/Src/main.c ****             butt_3_mode = true;
+  45:Core/Src/main.c ****         }
+  46:Core/Src/main.c **** 
+  47:Core/Src/main.c ****         if ((butt_0_mode != butt_0_mode_past) && (butt_0_mode == 1)) {
+  95              		.loc 1 47 9 is_stmt 1 view .LVU18
+  96              		.loc 1 47 12 is_stmt 0 view .LVU19
+  97 0048 9342     		cmp	r3, r2
+  98 004a 02D0     		beq	.L8
+  99              		.loc 1 47 47 discriminator 1 view .LVU20
+ 100 004c 012B     		cmp	r3, #1
+ 101 004e 00F0AD80 		beq	.L34
+ 102              	.L8:
+  48:Core/Src/main.c ****             butt_1_mode = false;
+  49:Core/Src/main.c ****             butt_2_mode = true; 
+  50:Core/Src/main.c ****             butt_3_mode = true;  
+  51:Core/Src/main.c ****         }
+  52:Core/Src/main.c **** 
+  53:Core/Src/main.c ****         if ((butt_0_mode != butt_0_mode_past) && (butt_0_mode == 2)){
+ 103              		.loc 1 53 9 is_stmt 1 view .LVU21
+ 104              		.loc 1 53 12 is_stmt 0 view .LVU22
+ 105 0052 9342     		cmp	r3, r2
+ 106 0054 02D0     		beq	.L9
+ 107              		.loc 1 53 47 discriminator 1 view .LVU23
+ 108 0056 022B     		cmp	r3, #2
+ 109 0058 00F0B180 		beq	.L35
+ 110              	.L9:
+  54:Core/Src/main.c ****             butt_1_mode = true;
+  55:Core/Src/main.c ****             butt_2_mode = false; 
+  56:Core/Src/main.c ****             butt_3_mode = true;   
+  57:Core/Src/main.c ****         }
+  58:Core/Src/main.c **** 
+  59:Core/Src/main.c ****         if ((butt_0_mode != butt_0_mode_past) && (butt_0_mode == 3)){ 
+ 111              		.loc 1 59 9 is_stmt 1 view .LVU24
+ 112              		.loc 1 59 12 is_stmt 0 view .LVU25
+ 113 005c 9342     		cmp	r3, r2
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 4
+
+
+ 114 005e 02D0     		beq	.L10
+ 115              		.loc 1 59 47 discriminator 1 view .LVU26
+ 116 0060 032B     		cmp	r3, #3
+ 117 0062 00F0B780 		beq	.L36
+ 118              	.L10:
+  60:Core/Src/main.c ****             butt_1_mode = true;
+  61:Core/Src/main.c ****             butt_2_mode = true; 
+  62:Core/Src/main.c ****             butt_3_mode = false;  
+  63:Core/Src/main.c ****         }
+  64:Core/Src/main.c **** 
+  65:Core/Src/main.c ****         if ((butt_0_mode != butt_0_mode_past) && (butt_0_mode == 4)) {
+ 119              		.loc 1 65 9 is_stmt 1 view .LVU27
+ 120              		.loc 1 65 12 is_stmt 0 view .LVU28
+ 121 0066 9342     		cmp	r3, r2
+ 122 0068 02D0     		beq	.L11
+ 123              		.loc 1 65 47 discriminator 1 view .LVU29
+ 124 006a 042B     		cmp	r3, #4
+ 125 006c 00F0BB80 		beq	.L37
+ 126              	.L11:
+  66:Core/Src/main.c ****             butt_1_mode = false; 
+  67:Core/Src/main.c ****             butt_2_mode = false; 
+  68:Core/Src/main.c ****             butt_3_mode = false;
+  69:Core/Src/main.c ****         }
+  70:Core/Src/main.c ****         
+  71:Core/Src/main.c ****         if (!butt_1_mode)            {led_0_state = HIGH; led_3_state = LOW;}       
+ 127              		.loc 1 71 9 is_stmt 1 view .LVU30
+ 128              		.loc 1 71 13 is_stmt 0 view .LVU31
+ 129 0070 974A     		ldr	r2, .L39+8
+ 130 0072 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 131              		.loc 1 71 12 view .LVU32
+ 132 0074 002A     		cmp	r2, #0
+ 133 0076 40F0BE80 		bne	.L12
+ 134              		.loc 1 71 39 is_stmt 1 discriminator 1 view .LVU33
+ 135              		.loc 1 71 51 is_stmt 0 discriminator 1 view .LVU34
+ 136 007a 964A     		ldr	r2, .L39+12
+ 137 007c 0121     		movs	r1, #1
+ 138 007e 1170     		strb	r1, [r2]
+ 139              		.loc 1 71 59 is_stmt 1 discriminator 1 view .LVU35
+ 140              		.loc 1 71 71 is_stmt 0 discriminator 1 view .LVU36
+ 141 0080 954A     		ldr	r2, .L39+16
+ 142 0082 0021     		movs	r1, #0
+ 143 0084 1170     		strb	r1, [r2]
+ 144              	.L13:
+  72:Core/Src/main.c ****         else if (READ_GPIOC(1) != 0) {led_0_state = LOW; led_3_state = HIGH;}
+  73:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+  74:Core/Src/main.c **** 
+  75:Core/Src/main.c ****         if (!butt_2_mode)            {led_1_state = HIGH; led_4_state = LOW;}       
+ 145              		.loc 1 75 9 is_stmt 1 view .LVU37
+ 146              		.loc 1 75 13 is_stmt 0 view .LVU38
+ 147 0086 954A     		ldr	r2, .L39+20
+ 148 0088 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 149              		.loc 1 75 12 view .LVU39
+ 150 008a 002A     		cmp	r2, #0
+ 151 008c 40F0C680 		bne	.L15
+ 152              		.loc 1 75 39 is_stmt 1 discriminator 1 view .LVU40
+ 153              		.loc 1 75 51 is_stmt 0 discriminator 1 view .LVU41
+ 154 0090 934A     		ldr	r2, .L39+24
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 5
+
+
+ 155 0092 0121     		movs	r1, #1
+ 156 0094 1170     		strb	r1, [r2]
+ 157              		.loc 1 75 59 is_stmt 1 discriminator 1 view .LVU42
+ 158              		.loc 1 75 71 is_stmt 0 discriminator 1 view .LVU43
+ 159 0096 934A     		ldr	r2, .L39+28
+ 160 0098 0021     		movs	r1, #0
+ 161 009a 1170     		strb	r1, [r2]
+ 162              	.L16:
+  76:Core/Src/main.c ****         else if (READ_GPIOC(2) != 0) {led_1_state = LOW; led_4_state = HIGH;}
+  77:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+  78:Core/Src/main.c **** 
+  79:Core/Src/main.c ****         if (!butt_3_mode)            {led_2_state = HIGH; led_5_state = LOW;}       
+ 163              		.loc 1 79 9 is_stmt 1 view .LVU44
+ 164              		.loc 1 79 13 is_stmt 0 view .LVU45
+ 165 009c 924A     		ldr	r2, .L39+32
+ 166 009e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 167              		.loc 1 79 12 view .LVU46
+ 168 00a0 002A     		cmp	r2, #0
+ 169 00a2 40F0CE80 		bne	.L18
+ 170              		.loc 1 79 39 is_stmt 1 discriminator 1 view .LVU47
+ 171              		.loc 1 79 51 is_stmt 0 discriminator 1 view .LVU48
+ 172 00a6 914A     		ldr	r2, .L39+36
+ 173 00a8 0121     		movs	r1, #1
+ 174 00aa 1170     		strb	r1, [r2]
+ 175              		.loc 1 79 59 is_stmt 1 discriminator 1 view .LVU49
+ 176              		.loc 1 79 71 is_stmt 0 discriminator 1 view .LVU50
+ 177 00ac 904A     		ldr	r2, .L39+40
+ 178 00ae 0021     		movs	r1, #0
+ 179 00b0 1170     		strb	r1, [r2]
+ 180              	.L19:
+  80:Core/Src/main.c ****         else if (READ_GPIOC(3) != 0) {led_2_state = LOW; led_5_state = HIGH;}
+  81:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+  82:Core/Src/main.c **** 
+  83:Core/Src/main.c ****         // обновление состояния кнопок        
+  84:Core/Src/main.c ****         butt_0_state = READ_GPIOC(0);
+ 181              		.loc 1 84 9 is_stmt 1 view .LVU51
+ 182              		.loc 1 84 24 is_stmt 0 view .LVU52
+ 183 00b2 854A     		ldr	r2, .L39
+ 184 00b4 D2F81028 		ldr	r2, [r2, #2064]
+ 185 00b8 02F00100 		and	r0, r2, #1
+ 186              		.loc 1 84 22 view .LVU53
+ 187 00bc 8D49     		ldr	r1, .L39+44
+ 188 00be 0870     		strb	r0, [r1]
+  85:Core/Src/main.c ****         butt_1_state = READ_GPIOC(1);
+ 189              		.loc 1 85 9 is_stmt 1 view .LVU54
+ 190              		.loc 1 85 24 is_stmt 0 view .LVU55
+ 191 00c0 C2F34000 		ubfx	r0, r2, #1, #1
+ 192              		.loc 1 85 22 view .LVU56
+ 193 00c4 8C49     		ldr	r1, .L39+48
+ 194 00c6 0870     		strb	r0, [r1]
+  86:Core/Src/main.c ****         butt_2_state = READ_GPIOC(2);
+ 195              		.loc 1 86 9 is_stmt 1 view .LVU57
+ 196              		.loc 1 86 24 is_stmt 0 view .LVU58
+ 197 00c8 C2F38000 		ubfx	r0, r2, #2, #1
+ 198              		.loc 1 86 22 view .LVU59
+ 199 00cc 8B49     		ldr	r1, .L39+52
+ 200 00ce 0870     		strb	r0, [r1]
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 6
+
+
+  87:Core/Src/main.c ****         butt_3_state = READ_GPIOC(3);
+ 201              		.loc 1 87 9 is_stmt 1 view .LVU60
+ 202              		.loc 1 87 24 is_stmt 0 view .LVU61
+ 203 00d0 C2F3C002 		ubfx	r2, r2, #3, #1
+ 204              		.loc 1 87 22 view .LVU62
+ 205 00d4 8A49     		ldr	r1, .L39+56
+ 206 00d6 0A70     		strb	r2, [r1]
+  88:Core/Src/main.c ****         butt_0_mode_past = butt_0_mode;
+ 207              		.loc 1 88 9 is_stmt 1 view .LVU63
+ 208              		.loc 1 88 26 is_stmt 0 view .LVU64
+ 209 00d8 8A4A     		ldr	r2, .L39+60
+ 210 00da 1370     		strb	r3, [r2]
+  89:Core/Src/main.c **** 
+  90:Core/Src/main.c ****         digitalWrite(GPIOC_BSRR, 1, led_0_state);
+ 211              		.loc 1 90 9 is_stmt 1 view .LVU65
+ 212 00dc 7D4B     		ldr	r3, .L39+12
+ 213 00de 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 214 00e0 002B     		cmp	r3, #0
+ 215 00e2 00F0C180 		beq	.L21
+ 216              		.loc 1 90 9 discriminator 1 view .LVU66
+ 217 00e6 784A     		ldr	r2, .L39
+ 218 00e8 D2F81838 		ldr	r3, [r2, #2072]
+ 219 00ec 43F00203 		orr	r3, r3, #2
+ 220 00f0 C2F81838 		str	r3, [r2, #2072]
+ 221              	.L22:
+ 222              		.loc 1 90 49 discriminator 4 view .LVU67
+  91:Core/Src/main.c ****         digitalWrite(GPIOC_BSRR, 2, led_1_state);
+ 223              		.loc 1 91 9 view .LVU68
+ 224 00f4 7A4B     		ldr	r3, .L39+24
+ 225 00f6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 226 00f8 002B     		cmp	r3, #0
+ 227 00fa 00F0BD80 		beq	.L23
+ 228              		.loc 1 91 9 discriminator 1 view .LVU69
+ 229 00fe 724A     		ldr	r2, .L39
+ 230 0100 D2F81838 		ldr	r3, [r2, #2072]
+ 231 0104 43F00403 		orr	r3, r3, #4
+ 232 0108 C2F81838 		str	r3, [r2, #2072]
+ 233              	.L24:
+ 234              		.loc 1 91 49 discriminator 4 view .LVU70
+  92:Core/Src/main.c ****         digitalWrite(GPIOC_BSRR, 3, led_2_state);
+ 235              		.loc 1 92 9 view .LVU71
+ 236 010c 774B     		ldr	r3, .L39+36
+ 237 010e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 238 0110 002B     		cmp	r3, #0
+ 239 0112 00F0B980 		beq	.L25
+ 240              		.loc 1 92 9 discriminator 1 view .LVU72
+ 241 0116 6C4A     		ldr	r2, .L39
+ 242 0118 D2F81838 		ldr	r3, [r2, #2072]
+ 243 011c 43F00803 		orr	r3, r3, #8
+ 244 0120 C2F81838 		str	r3, [r2, #2072]
+ 245              	.L26:
+ 246              		.loc 1 92 49 discriminator 4 view .LVU73
+  93:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 13, led_3_state);
+ 247              		.loc 1 93 9 view .LVU74
+ 248 0124 6C4B     		ldr	r3, .L39+16
+ 249 0126 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 250 0128 002B     		cmp	r3, #0
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 7
+
+
+ 251 012a 00F0B580 		beq	.L27
+ 252              		.loc 1 93 9 discriminator 1 view .LVU75
+ 253 012e 664A     		ldr	r2, .L39
+ 254 0130 D2F81834 		ldr	r3, [r2, #1048]
+ 255 0134 43F40053 		orr	r3, r3, #8192
+ 256 0138 C2F81834 		str	r3, [r2, #1048]
+ 257              	.L28:
+ 258              		.loc 1 93 50 discriminator 4 view .LVU76
+  94:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 14, led_4_state);
+ 259              		.loc 1 94 9 view .LVU77
+ 260 013c 694B     		ldr	r3, .L39+28
+ 261 013e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 262 0140 002B     		cmp	r3, #0
+ 263 0142 00F0B180 		beq	.L29
+ 264              		.loc 1 94 9 discriminator 1 view .LVU78
+ 265 0146 604A     		ldr	r2, .L39
+ 266 0148 D2F81834 		ldr	r3, [r2, #1048]
+ 267 014c 43F48043 		orr	r3, r3, #16384
+ 268 0150 C2F81834 		str	r3, [r2, #1048]
+ 269              	.L30:
+ 270              		.loc 1 94 50 discriminator 4 view .LVU79
+  95:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 15, led_5_state);
+ 271              		.loc 1 95 9 view .LVU80
+ 272 0154 664B     		ldr	r3, .L39+40
+ 273 0156 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 274 0158 002B     		cmp	r3, #0
+ 275 015a 00F0AD80 		beq	.L31
+ 276              		.loc 1 95 9 discriminator 1 view .LVU81
+ 277 015e 5A4A     		ldr	r2, .L39
+ 278 0160 D2F81834 		ldr	r3, [r2, #1048]
+ 279 0164 43F40043 		orr	r3, r3, #32768
+ 280 0168 C2F81834 		str	r3, [r2, #1048]
+ 281              	.L2:
+  31:Core/Src/main.c ****         // обработка кнопки смены режима
+ 282              		.loc 1 31 5 view .LVU82
+  33:Core/Src/main.c ****         {   
+ 283              		.loc 1 33 9 view .LVU83
+  33:Core/Src/main.c ****         {   
+ 284              		.loc 1 33 14 is_stmt 0 view .LVU84
+ 285 016c 564B     		ldr	r3, .L39
+ 286 016e D3F81038 		ldr	r3, [r3, #2064]
+ 287 0172 03F00103 		and	r3, r3, #1
+  33:Core/Src/main.c ****         {   
+ 288              		.loc 1 33 28 view .LVU85
+ 289 0176 5F4A     		ldr	r2, .L39+44
+ 290 0178 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+  33:Core/Src/main.c ****         {   
+ 291              		.loc 1 33 61 view .LVU86
+ 292 017a 81F00102 		eor	r2, r1, #1
+  33:Core/Src/main.c ****         {   
+ 293              		.loc 1 33 12 view .LVU87
+ 294 017e 8B42     		cmp	r3, r1
+ 295 0180 02D0     		beq	.L3
+ 296 0182 002A     		cmp	r2, #0
+ 297 0184 7FF441AF 		bne	.L38
+ 298              	.L3:
+  41:Core/Src/main.c ****             butt_1_mode = true;
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 8
+
+
+ 299              		.loc 1 41 9 is_stmt 1 view .LVU88
+  41:Core/Src/main.c ****             butt_1_mode = true;
+ 300              		.loc 1 41 26 is_stmt 0 view .LVU89
+ 301 0188 504B     		ldr	r3, .L39+4
+ 302 018a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 303 018c 5D4A     		ldr	r2, .L39+60
+ 304 018e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  41:Core/Src/main.c ****             butt_1_mode = true;
+ 305              		.loc 1 41 12 view .LVU90
+ 306 0190 9342     		cmp	r3, r2
+ 307 0192 3FF459AF 		beq	.L7
+  41:Core/Src/main.c ****             butt_1_mode = true;
+ 308              		.loc 1 41 47 discriminator 1 view .LVU91
+ 309 0196 002B     		cmp	r3, #0
+ 310 0198 7FF456AF 		bne	.L7
+  42:Core/Src/main.c ****             butt_2_mode = true;
+ 311              		.loc 1 42 13 is_stmt 1 view .LVU92
+  42:Core/Src/main.c ****             butt_2_mode = true;
+ 312              		.loc 1 42 25 is_stmt 0 view .LVU93
+ 313 019c 0121     		movs	r1, #1
+ 314 019e 4C48     		ldr	r0, .L39+8
+ 315 01a0 0170     		strb	r1, [r0]
+  43:Core/Src/main.c ****             butt_3_mode = true;
+ 316              		.loc 1 43 13 is_stmt 1 view .LVU94
+  43:Core/Src/main.c ****             butt_3_mode = true;
+ 317              		.loc 1 43 25 is_stmt 0 view .LVU95
+ 318 01a2 4E48     		ldr	r0, .L39+20
+ 319 01a4 0170     		strb	r1, [r0]
+  44:Core/Src/main.c ****         }
+ 320              		.loc 1 44 13 is_stmt 1 view .LVU96
+  44:Core/Src/main.c ****         }
+ 321              		.loc 1 44 25 is_stmt 0 view .LVU97
+ 322 01a6 5048     		ldr	r0, .L39+32
+ 323 01a8 0170     		strb	r1, [r0]
+ 324 01aa 4DE7     		b	.L7
+ 325              	.L34:
+  48:Core/Src/main.c ****             butt_2_mode = true; 
+ 326              		.loc 1 48 13 is_stmt 1 view .LVU98
+  48:Core/Src/main.c ****             butt_2_mode = true; 
+ 327              		.loc 1 48 25 is_stmt 0 view .LVU99
+ 328 01ac 4849     		ldr	r1, .L39+8
+ 329 01ae 0020     		movs	r0, #0
+ 330 01b0 0870     		strb	r0, [r1]
+  49:Core/Src/main.c ****             butt_3_mode = true;  
+ 331              		.loc 1 49 13 is_stmt 1 view .LVU100
+  49:Core/Src/main.c ****             butt_3_mode = true;  
+ 332              		.loc 1 49 25 is_stmt 0 view .LVU101
+ 333 01b2 0121     		movs	r1, #1
+ 334 01b4 4948     		ldr	r0, .L39+20
+ 335 01b6 0170     		strb	r1, [r0]
+  50:Core/Src/main.c ****         }
+ 336              		.loc 1 50 13 is_stmt 1 view .LVU102
+  50:Core/Src/main.c ****         }
+ 337              		.loc 1 50 25 is_stmt 0 view .LVU103
+ 338 01b8 4B48     		ldr	r0, .L39+32
+ 339 01ba 0170     		strb	r1, [r0]
+ 340 01bc 49E7     		b	.L8
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 9
+
+
+ 341              	.L35:
+  54:Core/Src/main.c ****             butt_2_mode = false; 
+ 342              		.loc 1 54 13 is_stmt 1 view .LVU104
+  54:Core/Src/main.c ****             butt_2_mode = false; 
+ 343              		.loc 1 54 25 is_stmt 0 view .LVU105
+ 344 01be 0121     		movs	r1, #1
+ 345 01c0 4348     		ldr	r0, .L39+8
+ 346 01c2 0170     		strb	r1, [r0]
+  55:Core/Src/main.c ****             butt_3_mode = true;   
+ 347              		.loc 1 55 13 is_stmt 1 view .LVU106
+  55:Core/Src/main.c ****             butt_3_mode = true;   
+ 348              		.loc 1 55 25 is_stmt 0 view .LVU107
+ 349 01c4 4548     		ldr	r0, .L39+20
+ 350 01c6 4FF0000C 		mov	ip, #0
+ 351 01ca 80F800C0 		strb	ip, [r0]
+  56:Core/Src/main.c ****         }
+ 352              		.loc 1 56 13 is_stmt 1 view .LVU108
+  56:Core/Src/main.c ****         }
+ 353              		.loc 1 56 25 is_stmt 0 view .LVU109
+ 354 01ce 4648     		ldr	r0, .L39+32
+ 355 01d0 0170     		strb	r1, [r0]
+ 356 01d2 43E7     		b	.L9
+ 357              	.L36:
+  60:Core/Src/main.c ****             butt_2_mode = true; 
+ 358              		.loc 1 60 13 is_stmt 1 view .LVU110
+  60:Core/Src/main.c ****             butt_2_mode = true; 
+ 359              		.loc 1 60 25 is_stmt 0 view .LVU111
+ 360 01d4 0121     		movs	r1, #1
+ 361 01d6 3E48     		ldr	r0, .L39+8
+ 362 01d8 0170     		strb	r1, [r0]
+  61:Core/Src/main.c ****             butt_3_mode = false;  
+ 363              		.loc 1 61 13 is_stmt 1 view .LVU112
+  61:Core/Src/main.c ****             butt_3_mode = false;  
+ 364              		.loc 1 61 25 is_stmt 0 view .LVU113
+ 365 01da 4048     		ldr	r0, .L39+20
+ 366 01dc 0170     		strb	r1, [r0]
+  62:Core/Src/main.c ****         }
+ 367              		.loc 1 62 13 is_stmt 1 view .LVU114
+  62:Core/Src/main.c ****         }
+ 368              		.loc 1 62 25 is_stmt 0 view .LVU115
+ 369 01de 4249     		ldr	r1, .L39+32
+ 370 01e0 0020     		movs	r0, #0
+ 371 01e2 0870     		strb	r0, [r1]
+ 372 01e4 3FE7     		b	.L10
+ 373              	.L37:
+  66:Core/Src/main.c ****             butt_2_mode = false; 
+ 374              		.loc 1 66 13 is_stmt 1 view .LVU116
+  66:Core/Src/main.c ****             butt_2_mode = false; 
+ 375              		.loc 1 66 25 is_stmt 0 view .LVU117
+ 376 01e6 0022     		movs	r2, #0
+ 377 01e8 3949     		ldr	r1, .L39+8
+ 378 01ea 0A70     		strb	r2, [r1]
+  67:Core/Src/main.c ****             butt_3_mode = false;
+ 379              		.loc 1 67 13 is_stmt 1 view .LVU118
+  67:Core/Src/main.c ****             butt_3_mode = false;
+ 380              		.loc 1 67 25 is_stmt 0 view .LVU119
+ 381 01ec 3B49     		ldr	r1, .L39+20
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 10
+
+
+ 382 01ee 0A70     		strb	r2, [r1]
+  68:Core/Src/main.c ****         }
+ 383              		.loc 1 68 13 is_stmt 1 view .LVU120
+  68:Core/Src/main.c ****         }
+ 384              		.loc 1 68 25 is_stmt 0 view .LVU121
+ 385 01f0 3D49     		ldr	r1, .L39+32
+ 386 01f2 0A70     		strb	r2, [r1]
+ 387 01f4 3CE7     		b	.L11
+ 388              	.L12:
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 389              		.loc 1 72 14 is_stmt 1 view .LVU122
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 390              		.loc 1 72 18 is_stmt 0 view .LVU123
+ 391 01f6 344A     		ldr	r2, .L39
+ 392 01f8 D2F81028 		ldr	r2, [r2, #2064]
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 393              		.loc 1 72 17 view .LVU124
+ 394 01fc 12F0020F 		tst	r2, #2
+ 395 0200 06D0     		beq	.L14
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 396              		.loc 1 72 39 is_stmt 1 discriminator 1 view .LVU125
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 397              		.loc 1 72 51 is_stmt 0 discriminator 1 view .LVU126
+ 398 0202 344A     		ldr	r2, .L39+12
+ 399 0204 0021     		movs	r1, #0
+ 400 0206 1170     		strb	r1, [r2]
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 401              		.loc 1 72 58 is_stmt 1 discriminator 1 view .LVU127
+  72:Core/Src/main.c ****         else                         {led_0_state = LOW; led_3_state = LOW;}
+ 402              		.loc 1 72 70 is_stmt 0 discriminator 1 view .LVU128
+ 403 0208 334A     		ldr	r2, .L39+16
+ 404 020a 0121     		movs	r1, #1
+ 405 020c 1170     		strb	r1, [r2]
+ 406 020e 3AE7     		b	.L13
+ 407              	.L14:
+  73:Core/Src/main.c **** 
+ 408              		.loc 1 73 39 is_stmt 1 view .LVU129
+  73:Core/Src/main.c **** 
+ 409              		.loc 1 73 51 is_stmt 0 view .LVU130
+ 410 0210 0022     		movs	r2, #0
+ 411 0212 3049     		ldr	r1, .L39+12
+ 412 0214 0A70     		strb	r2, [r1]
+  73:Core/Src/main.c **** 
+ 413              		.loc 1 73 58 is_stmt 1 view .LVU131
+  73:Core/Src/main.c **** 
+ 414              		.loc 1 73 70 is_stmt 0 view .LVU132
+ 415 0216 3049     		ldr	r1, .L39+16
+ 416 0218 0A70     		strb	r2, [r1]
+ 417 021a 34E7     		b	.L13
+ 418              	.L15:
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 419              		.loc 1 76 14 is_stmt 1 view .LVU133
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 420              		.loc 1 76 18 is_stmt 0 view .LVU134
+ 421 021c 2A4A     		ldr	r2, .L39
+ 422 021e D2F81028 		ldr	r2, [r2, #2064]
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 11
+
+
+ 423              		.loc 1 76 17 view .LVU135
+ 424 0222 12F0040F 		tst	r2, #4
+ 425 0226 06D0     		beq	.L17
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 426              		.loc 1 76 39 is_stmt 1 discriminator 1 view .LVU136
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 427              		.loc 1 76 51 is_stmt 0 discriminator 1 view .LVU137
+ 428 0228 2D4A     		ldr	r2, .L39+24
+ 429 022a 0021     		movs	r1, #0
+ 430 022c 1170     		strb	r1, [r2]
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 431              		.loc 1 76 58 is_stmt 1 discriminator 1 view .LVU138
+  76:Core/Src/main.c ****         else                         {led_1_state = LOW; led_4_state = LOW;}
+ 432              		.loc 1 76 70 is_stmt 0 discriminator 1 view .LVU139
+ 433 022e 2D4A     		ldr	r2, .L39+28
+ 434 0230 0121     		movs	r1, #1
+ 435 0232 1170     		strb	r1, [r2]
+ 436 0234 32E7     		b	.L16
+ 437              	.L17:
+  77:Core/Src/main.c **** 
+ 438              		.loc 1 77 39 is_stmt 1 view .LVU140
+  77:Core/Src/main.c **** 
+ 439              		.loc 1 77 51 is_stmt 0 view .LVU141
+ 440 0236 0022     		movs	r2, #0
+ 441 0238 2949     		ldr	r1, .L39+24
+ 442 023a 0A70     		strb	r2, [r1]
+  77:Core/Src/main.c **** 
+ 443              		.loc 1 77 58 is_stmt 1 view .LVU142
+  77:Core/Src/main.c **** 
+ 444              		.loc 1 77 70 is_stmt 0 view .LVU143
+ 445 023c 2949     		ldr	r1, .L39+28
+ 446 023e 0A70     		strb	r2, [r1]
+ 447 0240 2CE7     		b	.L16
+ 448              	.L18:
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 449              		.loc 1 80 14 is_stmt 1 view .LVU144
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 450              		.loc 1 80 18 is_stmt 0 view .LVU145
+ 451 0242 214A     		ldr	r2, .L39
+ 452 0244 D2F81028 		ldr	r2, [r2, #2064]
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 453              		.loc 1 80 17 view .LVU146
+ 454 0248 12F0080F 		tst	r2, #8
+ 455 024c 06D0     		beq	.L20
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 456              		.loc 1 80 39 is_stmt 1 discriminator 1 view .LVU147
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 457              		.loc 1 80 51 is_stmt 0 discriminator 1 view .LVU148
+ 458 024e 274A     		ldr	r2, .L39+36
+ 459 0250 0021     		movs	r1, #0
+ 460 0252 1170     		strb	r1, [r2]
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 461              		.loc 1 80 58 is_stmt 1 discriminator 1 view .LVU149
+  80:Core/Src/main.c ****         else                         {led_2_state = LOW; led_5_state = LOW;}
+ 462              		.loc 1 80 70 is_stmt 0 discriminator 1 view .LVU150
+ 463 0254 264A     		ldr	r2, .L39+40
+ 464 0256 0121     		movs	r1, #1
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 12
+
+
+ 465 0258 1170     		strb	r1, [r2]
+ 466 025a 2AE7     		b	.L19
+ 467              	.L20:
+  81:Core/Src/main.c **** 
+ 468              		.loc 1 81 39 is_stmt 1 view .LVU151
+  81:Core/Src/main.c **** 
+ 469              		.loc 1 81 51 is_stmt 0 view .LVU152
+ 470 025c 0022     		movs	r2, #0
+ 471 025e 2349     		ldr	r1, .L39+36
+ 472 0260 0A70     		strb	r2, [r1]
+  81:Core/Src/main.c **** 
+ 473              		.loc 1 81 58 is_stmt 1 view .LVU153
+  81:Core/Src/main.c **** 
+ 474              		.loc 1 81 70 is_stmt 0 view .LVU154
+ 475 0262 2349     		ldr	r1, .L39+40
+ 476 0264 0A70     		strb	r2, [r1]
+ 477 0266 24E7     		b	.L19
+ 478              	.L21:
+  90:Core/Src/main.c ****         digitalWrite(GPIOC_BSRR, 2, led_1_state);
+ 479              		.loc 1 90 9 is_stmt 1 discriminator 2 view .LVU155
+ 480 0268 174A     		ldr	r2, .L39
+ 481 026a D2F81838 		ldr	r3, [r2, #2072]
+ 482 026e 43F40033 		orr	r3, r3, #131072
+ 483 0272 C2F81838 		str	r3, [r2, #2072]
+ 484 0276 3DE7     		b	.L22
+ 485              	.L23:
+  91:Core/Src/main.c ****         digitalWrite(GPIOC_BSRR, 3, led_2_state);
+ 486              		.loc 1 91 9 discriminator 2 view .LVU156
+ 487 0278 134A     		ldr	r2, .L39
+ 488 027a D2F81838 		ldr	r3, [r2, #2072]
+ 489 027e 43F48023 		orr	r3, r3, #262144
+ 490 0282 C2F81838 		str	r3, [r2, #2072]
+ 491 0286 41E7     		b	.L24
+ 492              	.L25:
+  92:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 13, led_3_state);
+ 493              		.loc 1 92 9 discriminator 2 view .LVU157
+ 494 0288 0F4A     		ldr	r2, .L39
+ 495 028a D2F81838 		ldr	r3, [r2, #2072]
+ 496 028e 43F40023 		orr	r3, r3, #524288
+ 497 0292 C2F81838 		str	r3, [r2, #2072]
+ 498 0296 45E7     		b	.L26
+ 499              	.L27:
+  93:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 14, led_4_state);
+ 500              		.loc 1 93 9 discriminator 2 view .LVU158
+ 501 0298 0B4A     		ldr	r2, .L39
+ 502 029a D2F81834 		ldr	r3, [r2, #1048]
+ 503 029e 43F00053 		orr	r3, r3, #536870912
+ 504 02a2 C2F81834 		str	r3, [r2, #1048]
+ 505 02a6 49E7     		b	.L28
+ 506              	.L29:
+  94:Core/Src/main.c ****         digitalWrite(GPIOB_BSRR, 15, led_5_state);
+ 507              		.loc 1 94 9 discriminator 2 view .LVU159
+ 508 02a8 074A     		ldr	r2, .L39
+ 509 02aa D2F81834 		ldr	r3, [r2, #1048]
+ 510 02ae 43F08043 		orr	r3, r3, #1073741824
+ 511 02b2 C2F81834 		str	r3, [r2, #1048]
+ 512 02b6 4DE7     		b	.L30
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 13
+
+
+ 513              	.L31:
+ 514              		.loc 1 95 9 discriminator 2 view .LVU160
+ 515 02b8 034A     		ldr	r2, .L39
+ 516 02ba D2F81834 		ldr	r3, [r2, #1048]
+ 517 02be 43F00043 		orr	r3, r3, #-2147483648
+ 518 02c2 C2F81834 		str	r3, [r2, #1048]
+ 519 02c6 51E7     		b	.L2
+ 520              	.L40:
+ 521              		.align	2
+ 522              	.L39:
+ 523 02c8 00000240 		.word	1073872896
+ 524 02cc 00000000 		.word	butt_0_mode
+ 525 02d0 00000000 		.word	butt_1_mode
+ 526 02d4 00000000 		.word	led_0_state
+ 527 02d8 00000000 		.word	led_3_state
+ 528 02dc 00000000 		.word	butt_2_mode
+ 529 02e0 00000000 		.word	led_1_state
+ 530 02e4 00000000 		.word	led_4_state
+ 531 02e8 00000000 		.word	butt_3_mode
+ 532 02ec 00000000 		.word	led_2_state
+ 533 02f0 00000000 		.word	led_5_state
+ 534 02f4 00000000 		.word	butt_0_state
+ 535 02f8 00000000 		.word	butt_1_state
+ 536 02fc 00000000 		.word	butt_2_state
+ 537 0300 00000000 		.word	butt_3_state
+ 538 0304 00000000 		.word	butt_0_mode_past
+ 539              		.cfi_endproc
+ 540              	.LFE0:
+ 542              		.global	led_5_state
+ 543              		.section	.bss.led_5_state,"aw",%nobits
+ 546              	led_5_state:
+ 547 0000 00       		.space	1
+ 548              		.global	led_4_state
+ 549              		.section	.bss.led_4_state,"aw",%nobits
+ 552              	led_4_state:
+ 553 0000 00       		.space	1
+ 554              		.global	led_3_state
+ 555              		.section	.bss.led_3_state,"aw",%nobits
+ 558              	led_3_state:
+ 559 0000 00       		.space	1
+ 560              		.global	led_2_state
+ 561              		.section	.bss.led_2_state,"aw",%nobits
+ 564              	led_2_state:
+ 565 0000 00       		.space	1
+ 566              		.global	led_1_state
+ 567              		.section	.bss.led_1_state,"aw",%nobits
+ 570              	led_1_state:
+ 571 0000 00       		.space	1
+ 572              		.global	led_0_state
+ 573              		.section	.bss.led_0_state,"aw",%nobits
+ 576              	led_0_state:
+ 577 0000 00       		.space	1
+ 578              		.global	butt_3_state
+ 579              		.section	.data.butt_3_state,"aw"
+ 582              	butt_3_state:
+ 583 0000 01       		.byte	1
+ 584              		.global	butt_2_state
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 14
+
+
+ 585              		.section	.data.butt_2_state,"aw"
+ 588              	butt_2_state:
+ 589 0000 01       		.byte	1
+ 590              		.global	butt_1_state
+ 591              		.section	.data.butt_1_state,"aw"
+ 594              	butt_1_state:
+ 595 0000 01       		.byte	1
+ 596              		.global	butt_0_state
+ 597              		.section	.data.butt_0_state,"aw"
+ 600              	butt_0_state:
+ 601 0000 01       		.byte	1
+ 602              		.global	butt_3_mode
+ 603              		.section	.data.butt_3_mode,"aw"
+ 606              	butt_3_mode:
+ 607 0000 01       		.byte	1
+ 608              		.global	butt_2_mode
+ 609              		.section	.data.butt_2_mode,"aw"
+ 612              	butt_2_mode:
+ 613 0000 01       		.byte	1
+ 614              		.global	butt_1_mode
+ 615              		.section	.data.butt_1_mode,"aw"
+ 618              	butt_1_mode:
+ 619 0000 01       		.byte	1
+ 620              		.global	butt_0_mode_past
+ 621              		.section	.bss.butt_0_mode_past,"aw",%nobits
+ 624              	butt_0_mode_past:
+ 625 0000 00       		.space	1
+ 626              		.global	butt_0_mode
+ 627              		.section	.bss.butt_0_mode,"aw",%nobits
+ 630              	butt_0_mode:
+ 631 0000 00       		.space	1
+ 632              		.text
+ 633              	.Letext0:
+ 634              		.file 2 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/ma
+ 635              		.file 3 "C:/Users/Asus/Documents/Tools/xpack-arm-none-eabi-gcc-13.2.1-1.1/arm-none-eabi/include/sy
+ 636              		.file 4 "Core/Inc/init.h"
+ARM GAS  C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:21     .text.main:00000000 $t
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:27     .text.main:00000000 main
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:523    .text.main:000002c8 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:630    .bss.butt_0_mode:00000000 butt_0_mode
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:618    .data.butt_1_mode:00000000 butt_1_mode
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:576    .bss.led_0_state:00000000 led_0_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:558    .bss.led_3_state:00000000 led_3_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:612    .data.butt_2_mode:00000000 butt_2_mode
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:570    .bss.led_1_state:00000000 led_1_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:552    .bss.led_4_state:00000000 led_4_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:606    .data.butt_3_mode:00000000 butt_3_mode
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:564    .bss.led_2_state:00000000 led_2_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:546    .bss.led_5_state:00000000 led_5_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:600    .data.butt_0_state:00000000 butt_0_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:594    .data.butt_1_state:00000000 butt_1_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:588    .data.butt_2_state:00000000 butt_2_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:582    .data.butt_3_state:00000000 butt_3_state
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:624    .bss.butt_0_mode_past:00000000 butt_0_mode_past
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:547    .bss.led_5_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:553    .bss.led_4_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:559    .bss.led_3_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:565    .bss.led_2_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:571    .bss.led_1_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:577    .bss.led_0_state:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:625    .bss.butt_0_mode_past:00000000 $d
+C:\Users\Asus\AppData\Local\Temp\cciTH9ct.s:631    .bss.butt_0_mode:00000000 $d
+
+UNDEFINED SYMBOLS
+GPIO_init
